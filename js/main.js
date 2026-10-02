@@ -1,31 +1,25 @@
 /**
- * 站点交互脚本 —— 无依赖，原生 JS。
- * 覆盖：主题切换、移动端菜单、公告条、输入框、入口链接、滚动动效、滚动高亮。
+ * 站点交互脚本 —— 原生 JS，无依赖。
+ * 主题切换、移动端抽屉、磨砂输入卡、入口链接、滚动动效。
  */
 (function () {
   'use strict';
 
   var CFG = window.OING_CONFIG || {};
   var LINKS = CFG.links || {};
-  var STORE = {
-    theme: 'oing:theme',
-    lang: 'oing:lang',
-    announce: 'oing:announce:hidden',
-  };
+  var KEY = { theme: 'oing:theme', lang: 'oing:lang', announce: 'oing:announce:hidden' };
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 
-  var $ = function (sel, root) { return (root || document).querySelector(sel); };
-  var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
-
-  function store(key, value) {
+  function store(k, v) {
     try {
-      if (value === undefined) return localStorage.getItem(key);
-      if (value === null) localStorage.removeItem(key);
-      else localStorage.setItem(key, value);
-    } catch (e) { /* 隐私模式下忽略 */ }
+      if (v === undefined) return localStorage.getItem(k);
+      if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v);
+    } catch (e) { /* 隐私模式忽略 */ }
     return null;
   }
 
-  /* ------------------------------------------------------------- 提示条 */
+  /* --------------------------------------------------------------- 提示条 */
   var toastEl = $('#toast');
   var toastTimer = null;
   function toast(message) {
@@ -36,13 +30,13 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () {
       toastEl.classList.remove('is-visible');
-      setTimeout(function () { toastEl.hidden = true; }, 260);
+      setTimeout(function () { toastEl.hidden = true; }, 280);
     }, 2800);
   }
 
-  /* ------------------------------------------------------------- 多语言 */
+  /* --------------------------------------------------------------- 多语言 */
   function setLang(lang) {
-    store(STORE.lang, lang);
+    store(KEY.lang, lang);
     if (typeof window.oingApplyLang === 'function') window.oingApplyLang(lang);
     $$('.lang-switch button').forEach(function (b) {
       b.classList.toggle('is-active', b.getAttribute('data-lang') === lang);
@@ -52,28 +46,26 @@
     btn.addEventListener('click', function () { setLang(btn.getAttribute('data-lang') || 'zh'); });
   });
 
-  /* --------------------------------------------------------------- 主题 */
-  var themeBtn = $('#theme-toggle');
+  /* ----------------------------------------------------------------- 主题 */
   function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     var meta = document.querySelector('meta[name="theme-color"]:not([media])');
-    if (meta) meta.setAttribute('content', theme === 'dark' ? '#0b0e14' : '#ffffff');
+    if (meta) meta.setAttribute('content', theme === 'dark' ? '#0f1115' : '#f9f8f8');
   }
+  var themeBtn = $('#theme-toggle');
   if (themeBtn) {
     themeBtn.addEventListener('click', function () {
       var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
       applyTheme(next);
-      store(STORE.theme, next);
-      var key = next === 'dark' ? 'msg.theme.dark' : 'msg.theme.light';
-      var table = (window.OING_I18N || {})[document.documentElement.lang === 'en' ? 'en' : 'zh'] || {};
-      if (table[key]) toast(table[key]);
+      store(KEY.theme, next);
+      toast(window.oingT(next === 'dark' ? 'msg.theme.dark' : 'msg.theme.light'));
     });
   }
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
-    if (!store(STORE.theme)) applyTheme(e.matches ? 'dark' : 'light');
+    if (!store(KEY.theme)) applyTheme(e.matches ? 'dark' : 'light');
   });
 
-  /* --------------------------------------------------------- 移动端菜单 */
+  /* ----------------------------------------------------------- 移动端抽屉 */
   var navToggle = $('#nav-toggle');
   var nav = $('#primary-nav');
   function closeNav() {
@@ -93,35 +85,23 @@
       closeNav();
     });
   }
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') closeNav();
-  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeNav(); });
 
-  /* --------------------------------------------------------- 页头滚动态 */
+  /* ----------------------------------------------------------- 页头滚动态 */
   var header = $('#site-header');
   function onScroll() {
-    if (header) header.classList.toggle('is-scrolled', window.scrollY > 8);
+    if (header) header.classList.toggle('is-scrolled', window.scrollY > 6);
   }
   onScroll();
   window.addEventListener('scroll', onScroll, { passive: true });
 
-  /* ----------------------------------------------------------- 公告条 */
-  var announce = $('#announce');
-  var announceClose = $('#announce-close');
-  if (announce) {
-    if (store(STORE.announce) !== '1') announce.hidden = false;
-    if (announceClose) {
-      announceClose.addEventListener('click', function () {
-        announce.hidden = true;
-        store(STORE.announce, '1');
-      });
-    }
-  }
+  /* --------------------------------------------------------------- 公告条 */
+  var announce = $('#hero-announce');
+  if (announce && store(KEY.announce) === '1') announce.hidden = true;
 
-  /* ------------------------------------------------------------- 入口链接 */
+  /* --------------------------------------------------------------- 入口链接 */
   $$('[data-link]').forEach(function (el) {
-    var key = el.getAttribute('data-link');
-    var url = LINKS[key];
+    var url = LINKS[el.getAttribute('data-link')];
     if (url) {
       el.setAttribute('href', url);
       if (/^https?:/i.test(url)) {
@@ -131,13 +111,12 @@
     } else {
       el.addEventListener('click', function (e) {
         e.preventDefault();
-        var table = (window.OING_I18N || {})[document.documentElement.lang === 'en' ? 'en' : 'zh'] || {};
-        toast(table['msg.notConfigured'] || 'Not configured');
+        toast(window.oingT('msg.notConfigured'));
       });
     }
   });
 
-  /* --------------------------------------------------------- 输入框 / 发送 */
+  /* --------------------------------------------------------- 输入卡与发送 */
   var form = $('#composer');
   var textarea = $('#prompt');
   var sendBtn = $('#send-btn');
@@ -145,7 +124,7 @@
   function autoGrow() {
     if (!textarea) return;
     textarea.style.height = 'auto';
-    textarea.style.height = Math.min(textarea.scrollHeight, 220) + 'px';
+    textarea.style.height = Math.min(textarea.scrollHeight, 300) + 'px';
     if (sendBtn) sendBtn.disabled = textarea.value.trim().length === 0;
   }
 
@@ -154,7 +133,7 @@
     textarea.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
         e.preventDefault();
-        if (textarea.value.trim()) form.dispatchEvent(new Event('submit', { cancelable: true }));
+        if (textarea.value.trim() && form) form.dispatchEvent(new Event('submit', { cancelable: true }));
       }
     });
     autoGrow();
@@ -163,42 +142,26 @@
   if (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      var table = (window.OING_I18N || {})[document.documentElement.lang === 'en' ? 'en' : 'zh'] || {};
       if (LINKS.chat) {
         var q = textarea ? textarea.value.trim() : '';
         var joiner = LINKS.chat.indexOf('?') === -1 ? '?' : '&';
         window.open(LINKS.chat + (q ? joiner + 'q=' + encodeURIComponent(q) : ''), '_blank', 'noopener');
         return;
       }
-      toast(table['msg.sent'] || 'Demo');
+      toast(window.oingT('msg.sent'));
     });
   }
 
   var attachBtn = $('#attach-btn');
-  if (attachBtn) {
-    attachBtn.addEventListener('click', function () {
-      var table = (window.OING_I18N || {})[document.documentElement.lang === 'en' ? 'en' : 'zh'] || {};
-      toast(table['msg.attached'] || 'Not supported');
-    });
-  }
+  if (attachBtn) attachBtn.addEventListener('click', function () { toast(window.oingT('msg.attached')); });
 
-  $$('.tool-toggle').forEach(function (btn) {
+  $$('.pill-toggle').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      var on = btn.getAttribute('aria-pressed') === 'true';
-      btn.setAttribute('aria-pressed', on ? 'false' : 'true');
+      btn.setAttribute('aria-pressed', btn.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
     });
   });
 
-  $$('.chip').forEach(function (chip) {
-    chip.addEventListener('click', function () {
-      if (!textarea) return;
-      textarea.value = chip.getAttribute('data-prompt') || chip.textContent.trim();
-      autoGrow();
-      textarea.focus();
-    });
-  });
-
-  /* ------------------------------------------------------------- 滚动动效 */
+  /* --------------------------------------------------------------- 滚动动效 */
   var revealEls = $$('.reveal');
   if ('IntersectionObserver' in window && revealEls.length) {
     var io = new IntersectionObserver(function (entries) {
@@ -207,34 +170,16 @@
         entry.target.classList.add('is-in');
         io.unobserve(entry.target);
       });
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    }, { rootMargin: '0px 0px -6% 0px', threshold: 0.06 });
     revealEls.forEach(function (el, i) {
-      el.style.transitionDelay = Math.min(i % 6, 5) * 60 + 'ms';
+      el.style.transitionDelay = Math.min(i % 5, 4) * 55 + 'ms';
       io.observe(el);
     });
   } else {
     revealEls.forEach(function (el) { el.classList.add('is-in'); });
   }
 
-  /* --------------------------------------------------------- 导航滚动高亮 */
-  var sections = ['product', 'capability', 'news', 'about']
-    .map(function (id) { return document.getElementById(id); })
-    .filter(Boolean);
-  var navLinks = $$('#primary-nav a[href^="#"]');
-  if ('IntersectionObserver' in window && sections.length && navLinks.length) {
-    var spy = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
-        navLinks.forEach(function (a) {
-          a.style.color = a.getAttribute('href') === '#' + entry.target.id ? 'var(--text)' : '';
-          a.style.background = a.getAttribute('href') === '#' + entry.target.id ? 'var(--surface-2)' : '';
-        });
-      });
-    }, { rootMargin: '-45% 0px -50% 0px' });
-    sections.forEach(function (s) { spy.observe(s); });
-  }
-
-  /* ------------------------------------------------------------ 配置注入 */
+  /* --------------------------------------------------------------- 配置注入 */
   var qr = $('#qr-img');
   if (qr && CFG.qrImage) qr.setAttribute('src', CFG.qrImage);
 
@@ -249,22 +194,16 @@
     filing.hidden = false;
     if (CFG.icp) {
       var a = document.createElement('a');
-      a.href = 'https://beian.miit.gov.cn/';
-      a.target = '_blank';
-      a.rel = 'noopener';
-      a.textContent = CFG.icp;
-      filing.appendChild(a);
+      a.href = 'https://beian.miit.gov.cn/'; a.target = '_blank'; a.rel = 'noopener';
+      a.textContent = CFG.icp; filing.appendChild(a);
     }
     if (CFG.police) {
       var b = document.createElement('a');
-      b.href = 'https://beian.mps.gov.cn/';
-      b.target = '_blank';
-      b.rel = 'noopener';
-      b.textContent = CFG.police;
-      filing.appendChild(b);
+      b.href = 'https://beian.mps.gov.cn/'; b.target = '_blank'; b.rel = 'noopener';
+      b.textContent = CFG.police; filing.appendChild(b);
     }
   }
 
-  /* ------------------------------------------------------------- 初始化 */
-  setLang(store(STORE.lang) === 'en' ? 'en' : 'zh');
+  /* ----------------------------------------------------------------- 初始化 */
+  setLang(store(KEY.lang) === 'en' ? 'en' : 'zh');
 })();

@@ -9,7 +9,8 @@
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<link rel="stylesheet" href="css/style.css?v=1.0.0">
+<link rel="stylesheet" href="css/fonts.css?v=2.0.0">
+<link rel="stylesheet" href="css/style.css?v=2.0.0">
 <script>
   (function () {
     try {
@@ -28,11 +29,12 @@
 </head>
 <body>
   <a class="skip-link" href="#main" data-i18n="a11y.skip">跳到主要内容</a>
+
   <header class="site-header" id="site-header">
     <div class="shell header-inner">
       <a class="brand" href="index.html" aria-label="Oing">
         <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 48 48" width="30" height="30">
+          <svg viewBox="0 0 48 48" width="28" height="28">
             <circle cx="24" cy="24" r="11.2" fill="none" stroke="currentColor" stroke-width="6.6"/>
             <circle cx="37.3" cy="13.2" r="2.8" fill="currentColor"/>
           </svg>
@@ -40,10 +42,9 @@
         <span class="brand-name">Oing</span>
       </a>
       <nav class="nav" id="primary-nav" aria-label="主导航">
-        <a href="index.html#product" data-i18n="nav.product">产品</a>
         <a href="index.html#capability" data-i18n="nav.capability">能力</a>
         <a href="index.html#news" data-i18n="nav.news">动态</a>
-        <a href="index.html#about" data-i18n="nav.about">关于</a>
+        <a href="#" data-link="docs" data-i18n="nav.docs">开发文档</a>
         <a href="legal.html" data-i18n="nav.legal">法务</a>
       </nav>
       <div class="header-actions">
@@ -52,48 +53,48 @@
           <button type="button" data-lang="en">EN</button>
         </div>
         <button type="button" class="icon-btn" id="theme-toggle" aria-label="切换主题" title="切换主题">
-          <svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><g stroke-width="2" stroke-linecap="round"><path d="M12 2.6v2.4M12 19v2.4M2.6 12h2.4M19 12h2.4M5.4 5.4l1.7 1.7M16.9 16.9l1.7 1.7M18.6 5.4l-1.7 1.7M7.1 16.9l-1.7 1.7"/></g></svg>
-          <svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+          <svg class="i-sun" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><g stroke-width="2" stroke-linecap="round"><path d="M12 2.6v2.4M12 19v2.4M2.6 12h2.4M19 12h2.4M5.4 5.4l1.7 1.7M16.9 16.9l1.7 1.7M18.6 5.4l-1.7 1.7M7.1 16.9l-1.7 1.7"/></g></svg>
+          <svg class="i-moon" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
         </button>
-        <a class="btn btn-primary btn-sm" href="index.html#start" data-link="chat" data-i18n="cta.start">开始使用</a>
+        <a class="btn btn-primary btn-s" href="index.html" data-link="chat" data-i18n="header.cta">开始使用</a>
         <button type="button" class="icon-btn nav-toggle" id="nav-toggle" aria-label="打开菜单" aria-expanded="false" aria-controls="primary-nav">
-          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3.5 7h17M3.5 12h17M3.5 17h17" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3.5 7h17M3.5 12h17M3.5 17h17" stroke-width="1.7" stroke-linecap="round"/></svg>
         </button>
       </div>
     </div>
   </header>
 
-<main id="main" class="section">
-  <div class="shell" style="max-width:820px">
-    <header class="section-head reveal">
-      <h1 style="font-size:clamp(26px,3.4vw,36px)" data-i18n="legal.title">法务信息</h1>
-      <p data-i18n="legal.updated">最近更新：2026-01-01</p>
-    </header>
+<main id="main" class="section" style="padding-top:calc(var(--header-h) + var(--s9))">
+  <div class="shell" style="max-width:760px">
+    <div class="section-head reveal" style="grid-template-columns:1fr;gap:var(--s3)">
+      <p class="eyebrow">Legal</p>
+      <h2 style="font-size:28px" data-i18n="legal.title">法务信息</h2>
+      <p class="t-caption" style="color:var(--text-description)" data-i18n="legal.updated">最近更新：2026-09-28</p>
+    </div>
 
-    <section id="terms" class="legal-block reveal" style="margin-bottom:36px">
-      <h2 style="font-size:20px" data-i18n="legal.terms.t">服务条款</h2>
-      <p style="margin-top:10px;color:var(--text-2)" data-i18n="legal.terms.p">本页内容为站点模板示例文本。</p>
-    </section>
+    <div class="index-list" style="border-top:0">
+      <section id="terms" class="reveal" style="padding:var(--s5) 0;border-bottom:1px solid var(--border-divider)">
+        <h3 class="t-title" data-i18n="legal.terms.t">服务条款</h3>
+        <p style="margin-top:var(--s3);color:var(--text-description);font-size:15px;max-width:66ch" data-i18n="legal.terms.p">本页为站点模板示例文本。</p>
+      </section>
+      <section id="privacy" class="reveal" style="padding:var(--s5) 0;border-bottom:1px solid var(--border-divider)">
+        <h3 class="t-title" data-i18n="legal.privacy.t">隐私政策</h3>
+        <p style="margin-top:var(--s3);color:var(--text-description);font-size:15px;max-width:66ch" data-i18n="legal.privacy.p">本页为站点模板示例文本。</p>
+      </section>
+      <section id="disclaimer" class="reveal" style="padding:var(--s5) 0;border-bottom:1px solid var(--border-divider)">
+        <h3 class="t-title" data-i18n="legal.disclaimer.t">免责声明</h3>
+        <p style="margin-top:var(--s3);color:var(--text-description);font-size:15px;max-width:66ch" data-i18n="legal.disclaimer.p">本页为站点模板示例文本。</p>
+      </section>
+      <section id="contact" class="reveal" style="padding:var(--s5) 0">
+        <h3 class="t-title" data-i18n="legal.contact.t">联系我们</h3>
+        <p style="margin-top:var(--s3);color:var(--text-description);font-size:15px">
+          <span data-i18n="legal.contact.p">如有任何疑问，欢迎邮件联系。</span>
+          <a id="legal-contact" href="mailto:hi@oing.top" style="color:var(--brand-ink);font-weight:500">hi@oing.top</a>
+        </p>
+      </section>
+    </div>
 
-    <section id="privacy" class="legal-block reveal" style="margin-bottom:36px">
-      <h2 style="font-size:20px" data-i18n="legal.privacy.t">隐私政策</h2>
-      <p style="margin-top:10px;color:var(--text-2)" data-i18n="legal.privacy.p">本页内容为站点模板示例文本。</p>
-    </section>
-
-    <section id="disclaimer" class="legal-block reveal" style="margin-bottom:36px">
-      <h2 style="font-size:20px" data-i18n="legal.disclaimer.t">免责声明</h2>
-      <p style="margin-top:10px;color:var(--text-2)" data-i18n="legal.disclaimer.p">本页内容为站点模板示例文本。</p>
-    </section>
-
-    <section id="contact" class="legal-block reveal" style="margin-bottom:44px">
-      <h2 style="font-size:20px" data-i18n="legal.contact.t">联系我们</h2>
-      <p style="margin-top:10px;color:var(--text-2)">
-        <span data-i18n="legal.contact.p">如有任何疑问，欢迎邮件联系。</span>
-        <a id="legal-contact" href="mailto:hi@oing.top" style="color:var(--brand-600);font-weight:600">hi@oing.top</a>
-      </p>
-    </section>
-
-    <a class="btn btn-ghost" href="index.html" data-i18n="legal.back">返回首页</a>
+    <p style="margin-top:var(--s7)"><a class="btn btn-soft" href="index.html" data-i18n="legal.back">返回首页</a></p>
   </div>
 </main>
 
@@ -103,7 +104,7 @@
         <div class="footer-brand">
           <a class="brand" href="index.html" aria-label="Oing">
             <span class="brand-mark" aria-hidden="true">
-              <svg viewBox="0 0 48 48" width="26" height="26">
+              <svg viewBox="0 0 48 48" width="24" height="24">
                 <circle cx="24" cy="24" r="11.2" fill="none" stroke="currentColor" stroke-width="6.6"/>
                 <circle cx="37.3" cy="13.2" r="2.8" fill="currentColor"/>
               </svg>
@@ -112,32 +113,38 @@
           </a>
           <p data-i18n="footer.slogan">让智能更近一步。</p>
           <div class="qr-box">
-            <img id="qr-img" src="assets/qr-placeholder.svg" alt="二维码" width="96" height="96" loading="lazy">
+            <img id="qr-img" src="assets/qr-placeholder.svg" alt="二维码" width="88" height="88" loading="lazy">
             <span data-i18n="footer.qr">关注我们</span>
           </div>
         </div>
-        <nav class="footer-cols" aria-label="页脚导航">
-          <div>
-            <h3 data-i18n="footer.col1">产品</h3>
-            <a href="#" data-link="chat" data-i18n="footer.chat">对话</a>
-            <a href="#" data-link="download" data-i18n="footer.download">客户端</a>
-            <a href="#" data-link="platform" data-i18n="footer.platform">开放平台</a>
-            <a href="#" data-link="status" data-i18n="footer.status">服务状态</a>
+        <div class="footer-cols">
+          <div class="footer-col">
+            <p data-i18n="footer.col1">产品</p>
+            <nav>
+              <a href="#" data-link="chat" data-i18n="footer.chat">对话</a>
+              <a href="#" data-link="download" data-i18n="footer.download">客户端</a>
+              <a href="#" data-link="platform" data-i18n="footer.platform">开放平台</a>
+              <a href="#" data-link="status" data-i18n="footer.status">服务状态</a>
+            </nav>
           </div>
-          <div>
-            <h3 data-i18n="footer.col2">资源</h3>
-            <a href="#" data-link="docs" data-i18n="footer.docs">开发文档</a>
-            <a href="#" data-link="blog" data-i18n="footer.blog">更新日志</a>
-            <a href="legal.html#terms" data-i18n="footer.terms">服务条款</a>
-            <a href="legal.html#privacy" data-i18n="footer.privacy">隐私政策</a>
+          <div class="footer-col">
+            <p data-i18n="footer.col2">资源</p>
+            <nav>
+              <a href="#" data-link="docs" data-i18n="footer.docs">开发文档</a>
+              <a href="#" data-link="blog" data-i18n="footer.blog">更新日志</a>
+              <a href="legal.html#terms" data-i18n="footer.terms">服务条款</a>
+              <a href="legal.html#privacy" data-i18n="footer.privacy">隐私政策</a>
+            </nav>
           </div>
-          <div>
-            <h3 data-i18n="footer.col3">关于</h3>
-            <a href="index.html#about" data-i18n="footer.about">关于我们</a>
-            <a href="mailto:hi@oing.top" id="contact-link" data-i18n="footer.contact">联系我们</a>
-            <a href="#" data-link="github" data-i18n="footer.github">GitHub</a>
+          <div class="footer-col">
+            <p data-i18n="footer.col3">关于</p>
+            <nav>
+              <a href="index.html" data-i18n="footer.about">关于我们</a>
+              <a href="mailto:hi@oing.top" id="contact-link" data-i18n="footer.contact">联系我们</a>
+              <a href="#" data-link="github" data-i18n="footer.github">GitHub</a>
+            </nav>
           </div>
-        </nav>
+        </div>
       </div>
       <div class="footer-bottom">
         <p>
@@ -146,19 +153,17 @@
           <span data-i18n="footer.rights">保留所有权利</span>
           <span id="filing" hidden></span>
         </p>
-        <div class="footer-bottom-actions">
-          <div class="lang-switch" role="group" aria-label="语言 / Language">
-            <button type="button" data-lang="zh" class="is-active">中文</button>
-            <button type="button" data-lang="en">EN</button>
-          </div>
+        <div class="lang-switch" role="group" aria-label="语言 / Language">
+          <button type="button" data-lang="zh" class="is-active">中文</button>
+          <button type="button" data-lang="en">EN</button>
         </div>
       </div>
     </div>
   </footer>
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
-  <script src="js/config.js?v=1.0.0"></script>
-  <script src="js/i18n.js?v=1.0.0"></script>
-  <script src="js/main.js?v=1.0.0"></script>
+  <script src="js/config.js?v=2.0.0"></script>
+  <script src="js/i18n.js?v=2.0.0"></script>
+  <script src="js/main.js?v=2.0.0"></script>
 </body>
 </html>

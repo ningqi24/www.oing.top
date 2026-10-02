@@ -36,7 +36,7 @@ const HTML_FILES = ['index.html', 'legal.html', '404.html'];
 // 两者都不可用时退化为"剥掉 import/export 再解析"，保证脚本本身不会因为
 // 环境限制而误报。
 function collectJs() {
-  const plain = ['js/config.js', 'js/i18n.js', 'js/main.js'];
+  const plain = ['js/config.js', 'js/i18n.js', 'js/main.js', 'js/flowfield.js'];
   const modules = ['scripts/gen-icons.mjs', 'scripts/serve.mjs', 'scripts/check.mjs'];
 
   for (const f of plain) {
@@ -110,8 +110,25 @@ for (const f of HTML_FILES) {
     if (m[1] !== VERSION) fail(f + ' 里的资源版本号 ' + m[1] + ' 与 package.json 的 ' + VERSION + ' 不一致');
   }
 }
-for (const f of ['css/style.css', 'js/main.js']) {
+for (const f of ['css/style.css', 'css/fonts.css', 'js/main.js', 'js/flowfield.js']) {
   if (!exists(f)) fail('缺少 ' + f);
+}
+
+/* 自托管字体：@font-face 里引用的每个文件都必须真的存在 */
+const fontsCss = read('css/fonts.css');
+const fontFiles = [...fontsCss.matchAll(/url\("([^"]+)"\)/g)].map((m) => m[1].replace(/^\.\.\//, ''));
+if (!fontFiles.length) fail('css/fonts.css 里没有任何 @font-face 文件引用');
+for (const f of fontFiles) {
+  if (!exists(f)) fail('css/fonts.css 引用了不存在的字体文件 ' + f);
+}
+
+/* 首屏有流场画布，就必须真的加载流场脚本 */
+const indexHtml = read('index.html');
+if (indexHtml.includes('hero-canvas')) {
+  if (!indexHtml.includes('js/flowfield.js')) fail('index.html 有 .hero-canvas 但没有加载 js/flowfield.js');
+  if (indexHtml.includes('flowfield.js') && !/OingFlowField/.test(read('js/flowfield.js'))) {
+    fail('js/flowfield.js 没有注册 window.OingFlowField');
+  }
 }
 
 /* ------------------------------------------------------ 4 配置类文件一致 */

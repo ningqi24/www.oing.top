@@ -1,0 +1,43 @@
+/* ==========================================================================
+   自托管字体 —— 均为 SIL Open Font License 1.1，可自由分发。
+   DM Sans    正文（400 / 500 / 700）
+   Montserrat 标语（500 / 600）
+   只含 latin 子集（约 74 KB）；中文走系统字体栈，与参考站做法一致。
+   授权原文见 assets/fonts/LICENSE-*.txt
+   ========================================================================== */
+
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/dm-sans-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../assets/fonts/dm-sans-500.woff2") format("woff2");
+}
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../assets/fonts/dm-sans-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../assets/fonts/montserrat-500.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../assets/fonts/montserrat-600.woff2") format("woff2");
+}

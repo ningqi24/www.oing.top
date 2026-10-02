@@ -122,8 +122,8 @@ function drawIcon(size) {
   const dotX = Math.cos(dotAng) * dotDist;
   const dotY = Math.sin(dotAng) * dotDist;
 
-  const c1 = hex('#2b6fff');
-  const c2 = hex('#63e2ff');
+  const c1 = hex('#3355d8');
+  const c2 = hex('#7ba6ff');
   const px = new Uint8Array(S * S * 4);
   const SS = 4; // 每个像素 4x4 超采样
   const inv = 1 / (SS * SS);
@@ -178,9 +178,9 @@ function drawIcon(size) {
 
 /** 1200x630 社交分享封面：全幅渐变 + 柔光 + 图标主体。 */
 function drawOg(w, h) {
-  const c1 = hex('#1b3fd6');
-  const c2 = hex('#2b6fff');
-  const c3 = hex('#63e2ff');
+  const c1 = hex('#1d2f6b');
+  const c2 = hex('#3a63e8');
+  const c3 = hex('#8fb4ff');
   const px = new Uint8Array(w * h * 4);
   const SS = 3;
   const inv = 1 / (SS * SS);
