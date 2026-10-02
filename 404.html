@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>页面走丢了 — Oing</title>
+<meta name="robots" content="noindex">
+<!-- 404 会被任意路径命中，因此这里一律用绝对路径 -->
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/style.css?v=1.0.0">
+<script>
+  (function () {
+    try {
+      var fromUrl = new URLSearchParams(location.search).get('theme');
+      var saved = localStorage.getItem('oing:theme');
+      var theme = fromUrl === 'light' || fromUrl === 'dark'
+        ? fromUrl
+        : (saved === 'light' || saved === 'dark'
+          ? saved
+          : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+      document.documentElement.setAttribute('data-theme', theme);
+      if (fromUrl === 'light' || fromUrl === 'dark') localStorage.setItem('oing:theme', theme);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+  <a class="skip-link" href="#main" data-i18n="a11y.skip">跳到主要内容</a>
+  <header class="site-header" id="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="/index.html" aria-label="Oing">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48" width="30" height="30">
+            <circle cx="24" cy="24" r="11.2" fill="none" stroke="currentColor" stroke-width="6.6"/>
+            <circle cx="37.3" cy="13.2" r="2.8" fill="currentColor"/>
+          </svg>
+        </span>
+        <span class="brand-name">Oing</span>
+      </a>
+      <nav class="nav" id="primary-nav" aria-label="主导航">
+        <a href="/index.html#product" data-i18n="nav.product">产品</a>
+        <a href="/index.html#capability" data-i18n="nav.capability">能力</a>
+        <a href="/index.html#news" data-i18n="nav.news">动态</a>
+        <a href="/index.html#about" data-i18n="nav.about">关于</a>
+        <a href="/legal.html" data-i18n="nav.legal">法务</a>
+      </nav>
+      <div class="header-actions">
+        <div class="lang-switch" role="group" aria-label="语言 / Language">
+          <button type="button" data-lang="zh" class="is-active">中文</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+        <button type="button" class="icon-btn" id="theme-toggle" aria-label="切换主题" title="切换主题">
+          <svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><g stroke-width="2" stroke-linecap="round"><path d="M12 2.6v2.4M12 19v2.4M2.6 12h2.4M19 12h2.4M5.4 5.4l1.7 1.7M16.9 16.9l1.7 1.7M18.6 5.4l-1.7 1.7M7.1 16.9l-1.7 1.7"/></g></svg>
+          <svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+        </button>
+        <a class="btn btn-primary btn-sm" href="/index.html#start" data-link="chat" data-i18n="cta.start">开始使用</a>
+        <button type="button" class="icon-btn nav-toggle" id="nav-toggle" aria-label="打开菜单" aria-expanded="false" aria-controls="primary-nav">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3.5 7h17M3.5 12h17M3.5 17h17" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+<main id="main" class="hero">
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="shell hero-inner">
+    <div class="hero-mark" aria-hidden="true">
+      <svg viewBox="0 0 48 48" width="64" height="64">
+        <circle cx="24" cy="24" r="11.2" fill="none" stroke="currentColor" stroke-width="6.6"/>
+        <circle cx="37.3" cy="13.2" r="2.8" fill="currentColor"/>
+      </svg>
+    </div>
+    <p style="font-size:64px;font-weight:800;letter-spacing:-.04em;line-height:1" aria-hidden="true">404</p>
+    <h1 style="margin-top:14px;font-size:clamp(22px,3vw,30px)" data-i18n="nf.title">页面走丢了</h1>
+    <p class="hero-sub" data-i18n="nf.sub">你访问的地址不存在，或者已经被移动到别处。</p>
+    <p style="margin-top:26px"><a class="btn btn-primary" href="/" data-i18n="nf.home">回到首页</a></p>
+  </div>
+</main>
+
+  <footer class="site-footer">
+    <div class="shell">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a class="brand" href="/index.html" aria-label="Oing">
+            <span class="brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 48 48" width="26" height="26">
+                <circle cx="24" cy="24" r="11.2" fill="none" stroke="currentColor" stroke-width="6.6"/>
+                <circle cx="37.3" cy="13.2" r="2.8" fill="currentColor"/>
+              </svg>
+            </span>
+            <span class="brand-name">Oing</span>
+          </a>
+          <p data-i18n="footer.slogan">让智能更近一步。</p>
+          <div class="qr-box">
+            <img id="qr-img" src="/assets/qr-placeholder.svg" alt="二维码" width="96" height="96" loading="lazy">
+            <span data-i18n="footer.qr">关注我们</span>
+          </div>
+        </div>
+        <nav class="footer-cols" aria-label="页脚导航">
+          <div>
+            <h3 data-i18n="footer.col1">产品</h3>
+            <a href="#" data-link="chat" data-i18n="footer.chat">对话</a>
+            <a href="#" data-link="download" data-i18n="footer.download">客户端</a>
+            <a href="#" data-link="platform" data-i18n="footer.platform">开放平台</a>
+            <a href="#" data-link="status" data-i18n="footer.status">服务状态</a>
+          </div>
+          <div>
+            <h3 data-i18n="footer.col2">资源</h3>
+            <a href="#" data-link="docs" data-i18n="footer.docs">开发文档</a>
+            <a href="#" data-link="blog" data-i18n="footer.blog">更新日志</a>
+            <a href="/legal.html#terms" data-i18n="footer.terms">服务条款</a>
+            <a href="/legal.html#privacy" data-i18n="footer.privacy">隐私政策</a>
+          </div>
+          <div>
+            <h3 data-i18n="footer.col3">关于</h3>
+            <a href="/index.html#about" data-i18n="footer.about">关于我们</a>
+            <a href="mailto:hi@oing.top" id="contact-link" data-i18n="footer.contact">联系我们</a>
+            <a href="#" data-link="github" data-i18n="footer.github">GitHub</a>
+          </div>
+        </nav>
+      </div>
+      <div class="footer-bottom">
+        <p>
+          <span id="copyright">© 2026 Oing</span>
+          <span class="sep" aria-hidden="true">·</span>
+          <span data-i18n="footer.rights">保留所有权利</span>
+          <span id="filing" hidden></span>
+        </p>
+        <div class="footer-bottom-actions">
+          <div class="lang-switch" role="group" aria-label="语言 / Language">
+            <button type="button" data-lang="zh" class="is-active">中文</button>
+            <button type="button" data-lang="en">EN</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <script src="/js/config.js?v=1.0.0"></script>
+  <script src="/js/i18n.js?v=1.0.0"></script>
+  <script src="/js/main.js?v=1.0.0"></script>
+</body>
+</html>

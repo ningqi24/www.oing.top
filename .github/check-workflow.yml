@@ -1,0 +1,25 @@
+name: check
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      # 没有任何依赖，不需要 npm install
+      - name: 站点自检
+        run: npm run check
+      - name: 图标生成器可复现
+        run: |
+          npm run icons
+          git diff --exit-code -- assets favicon.ico || {
+            echo "::error::assets 与 scripts/gen-icons.mjs 的输出不一致，请本地跑 npm run icons 后提交";
+            exit 1;
+          }

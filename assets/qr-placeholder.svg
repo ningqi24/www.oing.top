@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="二维码占位图 — 请替换为你的二维码">
+  <rect width="200" height="200" rx="16" fill="#f5f7fb"/>
+  <g fill="#c8d2e6">
+    <rect x="34" y="34" width="46" height="46" rx="8"/>
+    <rect x="120" y="34" width="46" height="46" rx="8"/>
+    <rect x="34" y="120" width="46" height="46" rx="8"/>
+    <rect x="120" y="120" width="18" height="18" rx="4"/>
+    <rect x="148" y="120" width="18" height="18" rx="4"/>
+    <rect x="120" y="148" width="18" height="18" rx="4"/>
+    <rect x="148" y="148" width="18" height="18" rx="4"/>
+    <rect x="96" y="34" width="12" height="12" rx="3"/>
+    <rect x="96" y="62" width="12" height="18" rx="3"/>
+    <rect x="34" y="96" width="18" height="12" rx="3"/>
+    <rect x="62" y="96" width="18" height="12" rx="3"/>
+    <rect x="96" y="96" width="12" height="12" rx="3"/>
+  </g>
+  <g stroke="#2b6fff" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.9">
+    <path d="M88 100h24M100 88v24"/>
+  </g>
+  <rect x="8" y="8" width="184" height="184" rx="12" fill="none" stroke="#2b6fff" stroke-width="3" stroke-dasharray="10 8" opacity="0.45"/>
+</svg>

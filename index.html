@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Oing — 让智能更近一步</title>
+<meta name="description" content="Oing 是一个专注于理解与创造的通用智能助手。提问、写作、编程、分析，从一句话开始。">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0e14" media="(prefers-color-scheme: dark)">
+<link rel="canonical" href="https://www.oing.top/">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Oing">
+<meta property="og:title" content="Oing — 让智能更近一步">
+<meta property="og:description" content="一个专注于理解与创造的通用智能助手。">
+<meta property="og:url" content="https://www.oing.top/">
+<meta property="og:image" content="https://www.oing.top/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Oing — 让智能更近一步">
+<meta name="twitter:description" content="一个专注于理解与创造的通用智能助手。">
+<meta name="twitter:image" content="https://www.oing.top/assets/og-cover.png">
+
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="stylesheet" href="css/style.css?v=1.0.0">
+
+<script>
+  /* 首屏前定主题，避免明暗切换时闪白 */
+  (function () {
+    try {
+      var fromUrl = new URLSearchParams(location.search).get('theme');
+      var saved = localStorage.getItem('oing:theme');
+      var theme = fromUrl === 'light' || fromUrl === 'dark'
+        ? fromUrl
+        : (saved === 'light' || saved === 'dark'
+          ? saved
+          : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+      document.documentElement.setAttribute('data-theme', theme);
+      if (fromUrl === 'light' || fromUrl === 'dark') localStorage.setItem('oing:theme', theme);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main" data-i18n="a11y.skip">跳到主要内容</a>
+
+<header class="site-header" id="site-header">
+  <div class="shell header-inner">
+    <a class="brand" href="/" aria-label="Oing">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" width="30" height="30">
+          <circle cx="24" cy="24" r="11.2" fill="none" stroke="currentColor" stroke-width="6.6"/>
+          <circle cx="37.3" cy="13.2" r="2.8" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="brand-name">Oing</span>
+    </a>
+
+    <nav class="nav" id="primary-nav" aria-label="主导航">
+      <a href="#product" data-i18n="nav.product">产品</a>
+      <a href="#capability" data-i18n="nav.capability">能力</a>
+      <a href="#news" data-i18n="nav.news">动态</a>
+      <a href="#about" data-i18n="nav.about">关于</a>
+      <a href="legal.html" data-i18n="nav.legal">法务</a>
+    </nav>
+
+    <div class="header-actions">
+      <div class="lang-switch" role="group" aria-label="语言 / Language">
+        <button type="button" data-lang="zh" class="is-active">中文</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+      <button type="button" class="icon-btn" id="theme-toggle" aria-label="切换主题" title="切换主题">
+        <svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><g stroke-width="2" stroke-linecap="round"><path d="M12 2.6v2.4M12 19v2.4M2.6 12h2.4M19 12h2.4M5.4 5.4l1.7 1.7M16.9 16.9l1.7 1.7M18.6 5.4l-1.7 1.7M7.1 16.9l-1.7 1.7"/></g></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+      </button>
+      <a class="btn btn-primary btn-sm" href="#start" data-link="chat" data-i18n="cta.start">开始使用</a>
+      <button type="button" class="icon-btn nav-toggle" id="nav-toggle" aria-label="打开菜单" aria-expanded="false" aria-controls="primary-nav">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3.5 7h17M3.5 12h17M3.5 17h17" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="announce" id="announce" hidden>
+  <div class="shell announce-inner">
+    <span class="announce-tag" data-i18n="announce.tag">新</span>
+    <p><span data-i18n="announce.text">Oing v1.0 正式发布：更快、更准、更省。</span>
+      <a href="#news" data-i18n="announce.link">查看详情</a></p>
+    <button type="button" class="announce-close" id="announce-close" aria-label="关闭公告">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</div>
+
+<main id="main">
+  <section class="hero" id="start">
+    <div class="hero-glow" aria-hidden="true"></div>
+    <div class="shell hero-inner">
+      <div class="hero-mark reveal" aria-hidden="true">
+        <svg viewBox="0 0 48 48" width="72" height="72">
+          <circle cx="24" cy="24" r="11.2" fill="none" stroke="currentColor" stroke-width="6.6"/>
+          <circle cx="37.3" cy="13.2" r="2.8" fill="currentColor"/>
+        </svg>
+      </div>
+      <h1 class="reveal" data-i18n="hero.title">你好，我是 Oing</h1>
+      <p class="hero-sub reveal" data-i18n="hero.sub">一个专注于理解与创造的通用智能助手。提问、写作、编程、分析 —— 从一句话开始。</p>
+
+      <form class="composer reveal" id="composer" autocomplete="off" novalidate>
+        <label class="sr-only" for="prompt" data-i18n="composer.label">输入你的问题</label>
+        <textarea id="prompt" name="prompt" rows="1" maxlength="4000"
+          data-i18n-placeholder="composer.placeholder" placeholder="给 Oing 发送消息…"></textarea>
+
+        <div class="composer-bar">
+          <div class="composer-tools">
+            <button type="button" class="tool-btn" id="attach-btn" title="添加附件" aria-label="添加附件">
+              <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke-width="1.9" stroke-linecap="round"/></svg>
+            </button>
+            <button type="button" class="tool-toggle" data-toggle="reason" aria-pressed="false">
+              <span class="dot" aria-hidden="true"></span><span data-i18n="composer.reason">深度思考</span>
+            </button>
+            <button type="button" class="tool-toggle" data-toggle="search" aria-pressed="false">
+              <span class="dot" aria-hidden="true"></span><span data-i18n="composer.search">联网搜索</span>
+            </button>
+          </div>
+          <button type="submit" class="send-btn" id="send-btn" aria-label="发送" disabled>
+            <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M4.5 11.2 19.3 4.6a.6.6 0 0 1 .8.8l-6.6 14.8a.6.6 0 0 1-1.1-.1l-1.6-5.3-5.3-1.6a.6.6 0 0 1-.1-1.1z" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </form>
+
+      <ul class="chips reveal" aria-label="示例提问">
+        <li><button type="button" class="chip" data-prompt="帮我写一份本周工作周报" data-i18n="chips.1">帮我写一份本周工作周报</button></li>
+        <li><button type="button" class="chip" data-prompt="解释这段代码在做什么" data-i18n="chips.2">解释这段代码在做什么</button></li>
+        <li><button type="button" class="chip" data-prompt="把这篇文章总结成五个要点" data-i18n="chips.3">总结一篇文章</button></li>
+        <li><button type="button" class="chip" data-prompt="帮我规划一次三天的旅行" data-i18n="chips.4">规划一次旅行</button></li>
+      </ul>
+
+      <p class="hero-hint reveal" data-i18n="hero.hint">按 Enter 发送 · Shift + Enter 换行</p>
+    </div>
+  </section>
+
+  <section class="section" id="product">
+    <div class="shell">
+      <header class="section-head reveal">
+        <h2 data-i18n="product.title">从任何一个入口开始</h2>
+        <p data-i18n="product.sub">同一套模型能力，覆盖你工作和生活的每个场景。</p>
+      </header>
+
+      <div class="entry-grid">
+        <article class="entry-card reveal">
+          <span class="entry-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 5.5h16v11H9.5L5.5 20v-3.5H4z" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          </span>
+          <h3 data-i18n="product.1.title">Oing 对话</h3>
+          <p data-i18n="product.1.desc">网页、桌面与移动端，随时随地开始一段对话。</p>
+          <a class="entry-link" href="#" data-link="chat" data-i18n="product.1.link">打开对话</a>
+        </article>
+
+        <article class="entry-card reveal">
+          <span class="entry-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22"><path d="M9 7.5 4.5 12 9 16.5M15 7.5 19.5 12 15 16.5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <h3 data-i18n="product.2.title">开放平台</h3>
+          <p data-i18n="product.2.desc">接口风格通用，几行代码即可完成接入。</p>
+          <a class="entry-link" href="#" data-link="platform" data-i18n="product.2.link">获取 API Key</a>
+        </article>
+
+        <article class="entry-card reveal">
+          <span class="entry-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22"><path d="M6 3.5h8L18.5 8v12.5H6z" stroke-width="1.6" stroke-linejoin="round"/><path d="M13.5 3.5V8H18" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          </span>
+          <h3 data-i18n="product.3.title">开发文档</h3>
+          <p data-i18n="product.3.desc">从快速开始到进阶用法，一份完整的开发者指南。</p>
+          <a class="entry-link" href="#" data-link="docs" data-i18n="product.3.link">阅读文档</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="capability">
+    <div class="shell">
+      <header class="section-head reveal">
+        <h2 data-i18n="cap.title">把复杂留给模型，把简单留给你</h2>
+        <p data-i18n="cap.sub">常用能力开箱即用，不必为每一个人场景重新造轮子。</p>
+      </header>
+
+      <div class="cap-grid">
+        <div class="cap-item reveal"><h3 data-i18n="cap.1.t">深度推理</h3><p data-i18n="cap.1.d">面对多步难题先想清楚再回答，过程可追溯。</p></div>
+        <div class="cap-item reveal"><h3 data-i18n="cap.2.t">联网搜索</h3><p data-i18n="cap.2.d">需要最新信息时自动检索，并给出可核对的来源。</p></div>
+        <div class="cap-item reveal"><h3 data-i18n="cap.3.t">超长上下文</h3><p data-i18n="cap.3.d">整本手册、整份财报一次读进来，不丢细节。</p></div>
+        <div class="cap-item reveal"><h3 data-i18n="cap.4.t">代码与工具</h3><p data-i18n="cap.4.d">读懂整个仓库，调用函数与外部工具完成任务。</p></div>
+        <div class="cap-item reveal"><h3 data-i18n="cap.5.t">多模态理解</h3><p data-i18n="cap.5.d">图片、表格、扫描件，直接看懂再动笔。</p></div>
+        <div class="cap-item reveal"><h3 data-i18n="cap.6.t">可控与安全</h3><p data-i18n="cap.6.d">数据用途透明，权限边界清晰，随时可以撤回。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="news">
+    <div class="shell">
+      <header class="section-head section-head-row reveal">
+        <div>
+          <h2 data-i18n="news.title">最新动态</h2>
+          <p data-i18n="news.sub">产品更新与平台公告。</p>
+        </div>
+        <a class="link-more" href="#" data-link="blog" data-i18n="news.more">全部动态</a>
+      </header>
+
+      <ul class="news-list">
+        <li class="reveal">
+          <a href="#" data-link="blog">
+            <time datetime="2026-01-01">2026-01-01</time>
+            <strong data-i18n="news.1.t">Oing v1.0 正式发布</strong>
+            <span data-i18n="news.1.d">首版开放对话、推理与联网能力。</span>
+          </a>
+        </li>
+        <li class="reveal">
+          <a href="#" data-link="platform">
+            <time datetime="2026-01-01">2026-01-01</time>
+            <strong data-i18n="news.2.t">开放平台开始公测</strong>
+            <span data-i18n="news.2.d">开发者可以申请密钥并接入自己的应用。</span>
+          </a>
+        </li>
+        <li class="reveal">
+          <a href="#" data-link="download">
+            <time datetime="2026-01-01">2026-01-01</time>
+            <strong data-i18n="news.3.t">桌面端上线</strong>
+            <span data-i18n="news.3.d">支持全局唤起与本地文件读取。</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="about">
+    <div class="shell">
+      <div class="cta-band reveal">
+        <div>
+          <h2 data-i18n="cta.title">把 Oing 带到你的产品里</h2>
+          <p data-i18n="cta.sub">开放平台提供稳定的接口与清晰的计费方式，几分钟完成第一次调用。</p>
+        </div>
+        <div class="cta-actions">
+          <a class="btn btn-primary" href="#" data-link="platform" data-i18n="cta.primary">开始接入</a>
+          <a class="btn btn-ghost" href="#" data-link="docs" data-i18n="cta.secondary">查看文档</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="shell">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a class="brand" href="/" aria-label="Oing">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48" width="26" height="26">
+              <circle cx="24" cy="24" r="11.2" fill="none" stroke="currentColor" stroke-width="6.6"/>
+              <circle cx="37.3" cy="13.2" r="2.8" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="brand-name">Oing</span>
+        </a>
+        <p data-i18n="footer.slogan">让智能更近一步。</p>
+        <div class="qr-box">
+          <img id="qr-img" src="assets/qr-placeholder.svg" alt="二维码" width="96" height="96" loading="lazy">
+          <span data-i18n="footer.qr">关注我们</span>
+        </div>
+      </div>
+
+      <nav class="footer-cols" aria-label="页脚导航">
+        <div>
+          <h3 data-i18n="footer.col1">产品</h3>
+          <a href="#" data-link="chat" data-i18n="footer.chat">对话</a>
+          <a href="#" data-link="download" data-i18n="footer.download">客户端</a>
+          <a href="#" data-link="platform" data-i18n="footer.platform">开放平台</a>
+          <a href="#" data-link="status" data-i18n="footer.status">服务状态</a>
+        </div>
+        <div>
+          <h3 data-i18n="footer.col2">资源</h3>
+          <a href="#" data-link="docs" data-i18n="footer.docs">开发文档</a>
+          <a href="#" data-link="blog" data-i18n="footer.blog">更新日志</a>
+          <a href="legal.html#terms" data-i18n="footer.terms">服务条款</a>
+          <a href="legal.html#privacy" data-i18n="footer.privacy">隐私政策</a>
+        </div>
+        <div>
+          <h3 data-i18n="footer.col3">关于</h3>
+          <a href="#about" data-i18n="footer.about">关于我们</a>
+          <a href="mailto:hi@oing.top" id="contact-link" data-i18n="footer.contact">联系我们</a>
+          <a href="#" data-link="github" data-i18n="footer.github">GitHub</a>
+        </div>
+      </nav>
+    </div>
+
+    <div class="footer-bottom">
+      <p>
+        <span id="copyright">© 2026 Oing</span>
+        <span class="sep" aria-hidden="true">·</span>
+        <span data-i18n="footer.rights">保留所有权利</span>
+        <span id="filing" hidden></span>
+      </p>
+      <div class="footer-bottom-actions">
+        <div class="lang-switch" role="group" aria-label="语言 / Language">
+          <button type="button" data-lang="zh" class="is-active">中文</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="js/config.js?v=1.0.0"></script>
+<script src="js/i18n.js?v=1.0.0"></script>
+<script src="js/main.js?v=1.0.0"></script>
+</body>
+</html>
