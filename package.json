@@ -1,6 +1,6 @@
 {
   "name": "www-oing-top",
-  "version": "2.7.1",
+  "version": "2.8.0",
   "private": true,
   "description": "www.oing.top 官网首页 —— 纯静态站点，无构建步骤，直接由 GitHub Pages 托管。",
   "type": "module",
@@ -9,6 +9,7 @@
     "check": "node scripts/check.mjs",
     "build:facts": "node scripts/build-facts.mjs",
     "sync:html": "node scripts/sync-html-text.mjs",
+    "bump": "node scripts/bump.mjs",
     "test:qa": "node scripts/test-qa.mjs",
     "test:worker": "node scripts/test-worker.mjs",
     "test": "npm run test:qa && npm run test:worker",
@@ -17,5 +18,6 @@
   },
   "engines": {
     "node": ">=18"
-  }
+  },
+  "assetHash": "84a5b492b755"
 }

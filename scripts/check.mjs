@@ -10,12 +10,15 @@
  *  5. HTML 标签必须闭合配平，id 不能重复
  *  6. data-link 的 key 必须在 js/config.js 中定义
  *  7. 不得出现第三方品牌词（防止把别人的商标、公司名带进来）
+ *  8. 文案一致性：HTML 兜底文字 / placeholder / aria-label 必须与 zh 词条一致
+ *  9. css/js 内容变了就必须改版本号（防「推上去了却没变化」）
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { computeAssetHash } from './asset-hash.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..');
@@ -170,6 +173,15 @@ const fontFiles = [...fontsCss.matchAll(/url\("([^"]+)"\)/g)].map((m) => m[1].re
 if (!fontFiles.length) fail('css/fonts.css 里没有任何 @font-face 文件引用');
 for (const f of fontFiles) {
   if (!exists(f)) fail('css/fonts.css 引用了不存在的字体文件 ' + f);
+}
+
+/* 资源变了就必须改版本号 —— 否则浏览器/CDN 继续用旧文件，表现是「推上去没变化」 */
+const nowHash = computeAssetHash(ROOT);
+if (!pkg.assetHash) {
+  fail('package.json 缺 assetHash —— 跑 npm run bump -- <版本号>');
+} else if (pkg.assetHash !== nowHash) {
+  fail('css/js 内容变了但版本号没跟着改（指纹 ' + pkg.assetHash + ' → ' + nowHash +
+    '）—— 访客会看到旧文件。跑 npm run bump -- <新版本号>');
 }
 
 /* placeholder / aria-label 的兜底值也必须与 zh 词条一致（曾经漏同步过 placeholder） */
