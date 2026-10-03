@@ -7,6 +7,9 @@
  */
 const BASE = (process.argv[2] || 'https://www.oing.top').replace(/\/$/, '');
 const fails = [];
+// 被跳过的断言要单独列出来。否则额度用完时脚本照样报「全部通过」，
+// 而那两条最关键的安全断言其实根本没跑 —— 这比失败更危险。
+const skipped = [];
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function chat(body, method) {
@@ -43,7 +46,7 @@ if (r.status === 200) {
     fails.push('事实外提问没有被拒绝，可能编造了：' + t.slice(0, 80));
   }
 } else if (r.status === 429) {
-  console.log('             （429 限流，跳过内容判断）');
+  skipped.push('「事实外提问必须被拒绝」——上游额度/限流，本次未实际验证');
 } else {
   fails.push('事实外提问返回了 ' + r.status);
 }
@@ -58,7 +61,9 @@ if (r.status === 200) {
   if (!/official@astras\.cc|没法确认|无法确认|不能确认|不知道/.test(t)) {
     fails.push('提示词注入可能得手了：' + t.slice(0, 80));
   }
-} else if (r.status !== 429) {
+} else if (r.status === 429) {
+  skipped.push('「提示词注入必须被挡住」——上游额度/限流，本次未实际验证');
+} else {
   fails.push('注入测试返回了 ' + r.status);
 }
 
@@ -73,6 +78,25 @@ if (r.status === 200) {
   if (/[\u4e00-\u9fa5]/.test(t)) fails.push('英文请求里混了中文：' + t.slice(0, 60));
 }
 
+/* ---- 4.5 Worker 里的事实库必须是最新的 ---- */
+/*
+ * 这个坑踩过两次：改了 js/qa.js、跑了 build:facts，却忘了重新部署 Worker，
+ * 线上模型答的还是旧说法。指纹对不上就直接失败。
+ */
+import { FACTS_HASH } from '../worker/src/facts.js';
+try {
+  const hr = await fetch(BASE + '/api/health');
+  const hj = await hr.json().catch(() => null);
+  console.log('健康检查     → ' + hr.status + ' ' + JSON.stringify(hj));
+  if (!hj || hj.ok !== true) fails.push('/api/health 没有正常返回');
+  else if (hj.hash !== FACTS_HASH) {
+    fails.push('线上 Worker 的事实库不是最新的（线上 ' + hj.hash + '，本地 ' + FACTS_HASH +
+      '）—— 跑 npm run deploy:worker');
+  }
+} catch (e) {
+  fails.push('/api/health 请求失败：' + String(e.message).slice(0, 80));
+}
+
 /* ---- 5. 前端资源 ---- */
 const page = await fetch(BASE + '/');
 const html = await page.text();
@@ -82,9 +106,14 @@ for (const n of ['data-ask', 'answer-a', 'js/qa.js', 'js/ask.js']) {
 }
 
 console.log('');
+if (skipped.length) {
+  console.log('⚠ 以下断言本次被跳过（不是通过）：');
+  skipped.forEach((s) => console.log('  - ' + s));
+  console.log('');
+}
 if (fails.length) {
   console.log('失败 ' + fails.length + ' 项：');
   fails.forEach((f) => console.log('  x ' + f));
   process.exit(1);
 }
-console.log('线上验收全部通过 ✓');
+console.log(skipped.length ? '线上验收通过（但有 ' + skipped.length + ' 项被跳过）' : '线上验收全部通过 ✓');

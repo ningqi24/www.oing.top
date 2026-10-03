@@ -23,3 +23,6 @@ export const FALLBACK = {
   zh: "无法回答该问题。此处只回答已确认的站点信息，其余不作推测。可发送邮件至 official@astras.cc 询问。",
   en: "This question cannot be answered here. Only confirmed information about the site is provided, and nothing else is inferred. Please email official@astras.cc.",
 };
+
+/** 事实库指纹 —— worker 在 /api/health 里报出来，供线上验收比对 */
+export const FACTS_HASH = "02255f9e";

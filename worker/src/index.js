@@ -8,6 +8,7 @@
  * www.oing.top/api/*，其余请求照常回 GitHub Pages —— 同源、无 CORS、key 不落地。
  *
  * 接口：
+ *   GET  /api/health  { ok, facts, hash }  事实库指纹，供线上验收比对
  *   POST /api/chat   { query: string, lang: 'zh' | 'en' }
  *   200 { text, model }
  *   400 { error: 'empty' }
@@ -19,7 +20,7 @@
  *   502 { error: 'upstream', fallback } 上游全部失败，附带本地兜底文案
  *   503 { error: 'not_configured' }  没配 OPENROUTER_API_KEY
  */
-import { FACTS, FALLBACK } from './facts.js';
+import { FACTS, FALLBACK, FACTS_HASH } from './facts.js';
 import { rankFreeModels } from './models.js';
 import { buildMessages } from './prompt.js';
 
@@ -136,6 +137,13 @@ async function checkLimits(env, ip) {
 
 async function handle(request, env) {
   const url = new URL(request.url);
+
+  // 轻量健康检查：报出事实库指纹，供 npm run test:live 发现
+  // 「改了 js/qa.js 但忘了重新部署 Worker」——这个坑踩过两次。
+  if (url.pathname === '/api/health') {
+    return json({ ok: true, facts: FACTS.length, hash: FACTS_HASH });
+  }
+
   if (url.pathname !== '/api/chat') return json({ error: 'not_found' }, 404);
   if (request.method === 'OPTIONS') return new Response(null, { status: 204 });
   if (request.method !== 'POST') return json({ error: 'method_not_allowed' }, 405);
