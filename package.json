@@ -8,6 +8,7 @@
     "icons": "node scripts/gen-icons.mjs",
     "check": "node scripts/check.mjs",
     "build:facts": "node scripts/build-facts.mjs",
+    "sync:html": "node scripts/sync-html-text.mjs",
     "test:qa": "node scripts/test-qa.mjs",
     "test:worker": "node scripts/test-worker.mjs",
     "test": "npm run test:qa && npm run test:worker",

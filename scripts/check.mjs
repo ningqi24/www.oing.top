@@ -172,6 +172,12 @@ for (const f of fontFiles) {
   if (!exists(f)) fail('css/fonts.css 引用了不存在的字体文件 ' + f);
 }
 
+/* js/i18n.js 必须导出界面依赖的两个函数 —— 曾经在重写文案时把整段弄丢过 */
+const i18nSrc = read('js/i18n.js');
+for (const fn of ['window.oingApplyLang', 'window.oingT']) {
+  if (i18nSrc.indexOf(fn) === -1) fail('js/i18n.js 缺少 ' + fn + ' —— 语言切换或提示文案会失效');
+}
+
 /* 首屏有流场画布，就必须真的加载流场脚本 */
 const indexHtml = read('index.html');
 if (indexHtml.includes('hero-canvas')) {

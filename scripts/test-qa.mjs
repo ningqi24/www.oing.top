@@ -31,17 +31,21 @@ const CASES = [
   ['Oing 是做什么的', 'what'],
   ['介绍一下你们', 'what'],
   ['什么时候能用？', 'when'],
+  ['何时可以使用？', 'when'],
   ['有发布时间表吗', 'when'],
   ['啥时候上线啊', 'when'],
   ['现在能试用吗', 'usable'],
   ['怎么用啊', 'usable'],
   ['怎么联系你们？', 'contact'],
+  ['如何联系你们？', 'contact'],
   ['你们的邮箱是多少', 'contact'],
   ['有问题找谁', 'contact'],
   ['会不会收费？', 'price'],
+  ['是否收费？', 'price'],
   ['多少钱一年', 'price'],
   ['现在免费吗', 'price'],
   ['和 DeepSeek 什么关系？', 'deepseek'],
+  ['与 DeepSeek 是什么关系？', 'deepseek'],
   ['是不是抄 deepseek 的', 'deepseek'],
   ['你们和深度求索有关吗', 'deepseek'],
   ['会收集我的数据吗', 'privacy'],
@@ -86,6 +90,33 @@ const CASES = [
 
 let pass = 0;
 const fails = [];
+
+/*
+ * 首页那 5 个建议问题：**直接从 js/i18n.js 里读文字来测**。
+ *
+ * 为什么这么做：之前是手写死在这儿的，改了词条但忘了改测试，测试就变成
+ * 「测一段用户根本点不到的文字」。现在词条一改，测试自动跟着测新文案。
+ */
+const CHIP_EXPECT = ['what', 'when', 'contact', 'deepseek', 'price'];
+(function testChips() {
+  const sb = { window: {} };
+  vm.createContext(sb);
+  vm.runInContext(read('js/i18n.js'), sb);
+  const dict = (sb.window.OING_I18N || {}) || {};
+  ['zh', 'en'].forEach((lang) => {
+    if (!dict[lang]) { fails.push('js/i18n.js 缺少 ' + lang + ' 词条'); return; }
+    CHIP_EXPECT.forEach((expect, i) => {
+      const text = dict[lang]['ask.chip' + (i + 1)];
+      if (!text) { fails.push(lang + ' 缺少 ask.chip' + (i + 1)); return; }
+      const engine = lang === 'en' ? en : zh;
+      const r = engine.match(text);
+      if (r.id !== expect) {
+        fails.push(lang + ' 建议问题「' + text + '」期望 ' + expect + '，实际 ' + (r.id || '兜底') +
+          '（分数 ' + r.score.toFixed(2) + '）');
+      }
+    });
+  });
+})();
 
 function run(engine, langLabel) {
   for (const [q, expect] of CASES) {
