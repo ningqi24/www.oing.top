@@ -173,6 +173,10 @@ textarea { font: inherit; }
 
 .shell { width: min(var(--shell), 100% - 48px); margin-inline: auto; }
 
+@media (min-width: 1024px) {
+  .site-header { width: min(100% - 128px, 1280px); }
+}
+
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
@@ -269,20 +273,41 @@ textarea { font: inherit; }
 }
 
 /* ---------------------------------------------------------------- 5 页头 */
+/* 悬浮玻璃胶囊页头。
+   未滚动：贴边、全宽、完全透明。
+   滚过 80px：胶囊收窄并向内缩，同时磨砂玻璃淡入 —— 像一颗浮起来的液态玻璃药丸。
+   收窄与内缩是数值动画（js/header.js 用弹簧积分驱动，对应参考站 framer-motion 的
+   layout 弹簧：stiffness 180 / damping 28），玻璃背景交给 CSS transition。 */
 .site-header {
-  position: fixed; inset: 0 0 auto; z-index: 100;
-  height: var(--header-h);
-  border-bottom: 1px solid transparent;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  width: min(100% - 32px, 1280px);
+  margin: 0 auto;
+  padding: 8px 0 0;
+  pointer-events: none;             /* 胶囊之外不挡底下的内容 */
+}
+.header-bar {
+  max-width: 1280px;                /* ← 弹簧动画改这个值（未滚动 1280 / 滚动后 980 或 1180） */
+  margin: 0 auto;
+  padding: 4px 0;                   /* ← 弹簧动画同时改 padding-left / padding-right */
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  background: transparent;
+  pointer-events: auto;
   transition: background-color .3s var(--ease), border-color .3s var(--ease),
-              backdrop-filter .3s var(--ease);
+              box-shadow .3s var(--ease);
 }
-.site-header.is-scrolled {
-  background: color-mix(in srgb, var(--bg-page) 78%, transparent);
-  border-bottom-color: var(--border-divider);
-  backdrop-filter: saturate(180%) blur(16px);
-  -webkit-backdrop-filter: saturate(180%) blur(16px);
+.header-bar.is-scrolled {
+  background: var(--surface-raised);
+  border-color: var(--border-default);
+  box-shadow: 0 2px 12px rgba(21, 36, 67, .07);
 }
-.header-inner { display: flex; align-items: center; gap: var(--s5); height: 100%; }
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .header-bar.is-scrolled {
+    backdrop-filter: blur(12px) saturate(170%);
+    -webkit-backdrop-filter: blur(12px) saturate(170%);
+  }
+}
+.header-inner { display: flex; align-items: center; gap: var(--s5); height: 48px; }
 
 .brand { display: inline-flex; align-items: center; gap: 8px; flex: none; }
 .brand-mark { display: inline-flex; color: var(--brand-ink); }
@@ -572,6 +597,8 @@ html[lang="en"] .slogan {
   .shell, .hero-inner { width: min(var(--shell), 100% - 32px); }
 
   /* 移动端抽屉 */
+  .site-header { width: min(100% - 24px, 1280px); padding-top: 6px; }
+  .header-inner { height: 44px; }
   .nav {
     position: fixed; inset: var(--header-h) 0 auto;
     flex-direction: column; align-items: stretch; gap: 0;

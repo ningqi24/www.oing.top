@@ -36,7 +36,7 @@ const HTML_FILES = ['index.html', 'legal.html', '404.html'];
 // 两者都不可用时退化为"剥掉 import/export 再解析"，保证脚本本身不会因为
 // 环境限制而误报。
 function collectJs() {
-  const plain = ['js/config.js', 'js/i18n.js', 'js/main.js', 'js/flowfield.js'];
+  const plain = ['js/config.js', 'js/i18n.js', 'js/main.js', 'js/flowfield.js', 'js/header.js'];
   const modules = ['scripts/gen-icons.mjs', 'scripts/serve.mjs', 'scripts/check.mjs'];
 
   for (const f of plain) {
@@ -110,8 +110,18 @@ for (const f of HTML_FILES) {
     if (m[1] !== VERSION) fail(f + ' 里的资源版本号 ' + m[1] + ' 与 package.json 的 ' + VERSION + ' 不一致');
   }
 }
-for (const f of ['css/style.css', 'css/fonts.css', 'js/main.js', 'js/flowfield.js']) {
+for (const f of ['css/style.css', 'css/fonts.css', 'js/main.js', 'js/flowfield.js', 'js/header.js']) {
   if (!exists(f)) fail('缺少 ' + f);
+}
+
+/* 悬浮胶囊页头：结构、样式、脚本三者必须齐全 */
+for (const f of HTML_FILES) {
+  const src = read(f);
+  if (!src.includes('class="header-bar"')) continue;
+  if (!src.includes('js/header.js')) fail(f + ' 有 .header-bar 但没有加载 js/header.js');
+  if (!/\.header-bar[^{]*\{/.test(read('css/style.css'))) fail('css/style.css 里缺少 .header-bar 规则');
+  if (!/\.header-bar\.is-scrolled/.test(read('css/style.css'))) fail('css/style.css 里缺少 .header-bar.is-scrolled 规则');
+  if (!/OingHeader/.test(read('js/header.js'))) fail('js/header.js 没有注册 window.OingHeader');
 }
 
 /* 自托管字体：@font-face 里引用的每个文件都必须真的存在 */

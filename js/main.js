@@ -87,13 +87,7 @@
   }
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeNav(); });
 
-  /* ----------------------------------------------------------- 页头滚动态 */
-  var header = $('#site-header');
-  function onScroll() {
-    if (header) header.classList.toggle('is-scrolled', window.scrollY > 6);
-  }
-  onScroll();
-  window.addEventListener('scroll', onScroll, { passive: true });
+  /* 页头的悬浮胶囊收放由 js/header.js 负责（弹簧积分），这里不再插手。 */
 
   /* --------------------------------------------------------------- 公告条 */
   var announce = $('#hero-announce');

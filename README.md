@@ -48,6 +48,7 @@
 │   ├── config.js               ← 只改这个文件就能接上你自己的服务
 │   ├── i18n.js                 ← 中英文案都在这里
 │   ├── flowfield.js            首屏流场动画（原创实现，零依赖）
+│   ├── header.js               悬浮玻璃胶囊页头（弹簧积分驱动，零依赖）
 │   └── main.js                 交互逻辑
 ├── assets/
 │   ├── fonts/                  DM Sans + Montserrat（OFL，含授权原文）
@@ -113,13 +114,28 @@ links: {
 它已经处理好了：DPR 上限 2、约 40fps 封顶、离开视口/切后台自动暂停、
 `prefers-reduced-motion` 下只画一帧静态结果。
 
-### 5. 换图标
+### 5. 调页头
+
+页头是一颗**悬浮玻璃胶囊**：未滚动时贴边、全宽、完全透明；滚过 `80px` 后收窄并向内缩，
+同时磨砂玻璃淡入浮起来。
+
+- 收窄与内缩是**数值动画**，由 `js/header.js` 用弹簧积分驱动
+  （`stiffness 180 / damping 28 / mass 1`，`c ≈ 2√(k·m)` 刚好临界阻尼，不回弹）。
+  为什么要弹簧而不是 CSS transition：`width`/`padding` 走 CSS 过渡是"匀速 + 固定时长"，
+  中途上下滚动会显得机械；弹簧会带着当前速度继续走，所以连续滚动时手感是连续的。
+- 关键参数在 `js/header.js` 顶部：`THRESHOLD`（滚动阈值）、
+  `WIDE`（视口超过它，收窄后上限从 980 提到 1180）、`STIFFNESS` / `DAMPING`。
+- 玻璃外观在 `css/style.css` 的 `.header-bar.is-scrolled`
+  （`background` / `backdrop-filter: blur(12px) saturate(170%)` / `border-color`）。
+- `prefers-reduced-motion` 下不做动画，直接落值。
+
+### 6. 换图标
 
 图标由 `scripts/gen-icons.mjs` 用代码画出来（手写 PNG 编码，零依赖）。
 改 `drawIcon()` / `drawOg()` 的参数后跑 `npm run icons`。
 想直接覆盖也行：替换 `assets/icon-192.png`、`icon-512.png`、`apple-touch-icon.png`、`og-cover.png`、`favicon.ico`。
 
-### 6. 改完必须做
+### 7. 改完必须做
 
 跑 `npm run check`，并把 `package.json` 的 `version` 加一位，
 再同步三个 HTML 里 `css/*.css?v=` 和 `js/*.js?v=` 的版本号（自检会校验三者一致）。
@@ -177,6 +193,8 @@ git commit -m "ci: 启用自检工作流" && git push
   字体文件是否存在、版本号是否同步、标签是否闭合、id 是否重复、
   `data-link` 是否合法、有没有混入第三方品牌词。
 - **`npm run audit` 看移动端**：横向溢出是移动端最容易出的问题，靠肉眼很难发现。
+  它同时会实测页头：滚动前后的实际宽度、`padding-left`、`is-scrolled` 类、`backdrop-filter`
+  是否都按预期变化，并截两张对比图（`.tmp/header-top.png` / `.tmp/header-scrolled.png`）。
 - **改了看不到 → 先证明线上文件是否真的变了**（用上面的 curl），再怀疑缓存层。
 - **不要加 Service Worker。**
 - 页脚备案号、公众号二维码、`legal.html` 的条款正文都是**占位内容，上线前必须替换**。

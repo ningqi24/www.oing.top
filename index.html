@@ -30,8 +30,8 @@
 <link rel="preload" href="assets/fonts/dm-sans-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/dm-sans-500.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/montserrat-500.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/fonts.css?v=2.0.0">
-<link rel="stylesheet" href="css/style.css?v=2.0.0">
+<link rel="stylesheet" href="css/fonts.css?v=2.1.0">
+<link rel="stylesheet" href="css/style.css?v=2.1.0">
 
 <script>
   /* 首屏前定主题，避免明暗切换时闪一下 */
@@ -54,7 +54,8 @@
 <a class="skip-link" href="#main" data-i18n="a11y.skip">跳到主要内容</a>
 
 <header class="site-header" id="site-header">
-  <div class="shell header-inner">
+  <div class="header-bar" id="header-bar">
+    <div class="header-inner">
     <a class="brand" href="/" aria-label="Oing">
       <span class="brand-mark" aria-hidden="true">
         <svg viewBox="0 0 48 48" width="28" height="28">
@@ -86,6 +87,7 @@
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3.5 7h17M3.5 12h17M3.5 17h17" stroke-width="1.7" stroke-linecap="round"/></svg>
       </button>
     </div>
+  </div>
   </div>
 </header>
 
@@ -281,9 +283,10 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-<script src="js/config.js?v=2.0.0"></script>
-<script src="js/i18n.js?v=2.0.0"></script>
-<script src="js/flowfield.js?v=2.0.0"></script>
-<script src="js/main.js?v=2.0.0"></script>
+<script src="js/config.js?v=2.1.0"></script>
+<script src="js/i18n.js?v=2.1.0"></script>
+<script src="js/flowfield.js?v=2.1.0"></script>
+<script src="js/header.js?v=2.1.0"></script>
+<script src="js/main.js?v=2.1.0"></script>
 </body>
 </html>

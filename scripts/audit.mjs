@@ -186,6 +186,76 @@ const main = async () => {
       }
       ws.close();
     }
+    /* ---------- 悬浮胶囊页头：滚动后是否真的收窄 + 玻璃是否淡入 ---------- */
+    {
+      const target = await newTarget('about:blank');
+      const ws = new WebSocket(target.webSocketDebuggerUrl);
+      await new Promise((res, rej) => { ws.addEventListener('open', res); ws.addEventListener('error', rej); });
+      const cdp = new CDP(ws);
+      await cdp.send('Page.enable');
+      await cdp.send('Runtime.enable');
+      await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+      await cdp.send('Page.navigate', { url: BASE + '?theme=light' });
+      await sleep(1600);
+
+      const expr = [
+        '(async () => {',
+        '  const bar = document.querySelector(".header-bar");',
+        '  if (!bar) return { error: "页面上没有 .header-bar" };',
+        '  const read = () => {',
+        '    const cs = getComputedStyle(bar);',
+        '    return {',
+        '      w: Math.round(bar.getBoundingClientRect().width * 10) / 10,',
+        '      max: cs.maxWidth, pl: cs.paddingLeft, pr: cs.paddingRight,',
+        '      glass: bar.classList.contains("is-scrolled"),',
+        '      bg: cs.backgroundColor, blur: cs.backdropFilter || cs.webkitBackdropFilter || "none",',
+        '    };',
+        '  };',
+        '  const top = read();',
+        '  window.scrollTo(0, 600);',
+        '  await new Promise((r) => setTimeout(r, 1700));',
+        '  const down = read();',
+        '  const shot = null;',
+        '  window.scrollTo(0, 0);',
+        '  await new Promise((r) => setTimeout(r, 1700));',
+        '  const back = read();',
+        '  return { top, down, back };',
+        '})()',
+      ].join('\n');
+
+      const res = await cdp.send('Runtime.evaluate', { expression: expr, returnByValue: true, awaitPromise: true });
+      const v = res.result && res.result.value;
+      report.header = v;
+
+      if (v && v.top && v.down) {
+        // 收窄 + 内缩 + 玻璃
+        if (!(v.down.w < v.top.w - 5)) fail('滚动后胶囊没有收窄：' + v.top.w + 'px → ' + v.down.w + 'px');
+        if (!v.down.glass) fail('滚动后没有加上 is-scrolled 类');
+        if (v.down.blur === 'none') fail('滚动后玻璃没有模糊（backdrop-filter 仍是 none）');
+        if (!(parseFloat(v.down.pl) > parseFloat(v.top.pl))) fail('滚动后左侧没有内缩');
+        if (v.back && !(Math.abs(v.back.w - v.top.w) < 2)) fail('滚回顶部后胶囊没有复位：' + v.back.w + 'px（应回到 ' + v.top.w + 'px）');
+      } else {
+        fail('页头探测失败：' + JSON.stringify(v));
+      }
+
+      // 滚动状态截图，便于肉眼复核
+      await cdp.send('Runtime.evaluate', { expression: 'window.scrollTo(0, 600)' });
+      await sleep(1700);
+      // 注意：clip 用的是文档坐标，滚动后截 y=0 会截到视口外的空白。
+      // 这里直接截整个视口，看到的就是用户真实所见。
+      const shot = await cdp.send('Page.captureScreenshot', { format: 'png' });
+      const file = path.join(SHOT_DIR, 'header-scrolled.png');
+      fs.writeFileSync(file, Buffer.from(shot.data, 'base64'));
+      report.shots.push(path.relative(ROOT, file).replace(/\\/g, '/'));
+      await cdp.send('Runtime.evaluate', { expression: 'window.scrollTo(0, 0)' });
+      await sleep(1200);
+      const shot2 = await cdp.send('Page.captureScreenshot', { format: 'png' });
+      const file2 = path.join(SHOT_DIR, 'header-top.png');
+      fs.writeFileSync(file2, Buffer.from(shot2.data, 'base64'));
+      report.shots.push(path.relative(ROOT, file2).replace(/\\/g, '/'));
+      ws.close();
+    }
+
   } finally {
     proc.kill();
   }
@@ -199,6 +269,17 @@ const main = async () => {
         '  left=' + o.left + ' right=' + o.right + ' w=' + o.width + ' 越界 ' + o.over + 'px');
     });
   }
+  console.log('\n=== 悬浮胶囊页头 ===');
+  if (report.header && report.header.top) {
+    const h = report.header;
+    console.log('  顶部   width=' + h.top.w + 'px  maxWidth=' + h.top.max + '  paddingL=' + h.top.pl + '  玻璃=' + h.top.glass);
+    console.log('  滚动后 width=' + h.down.w + 'px  maxWidth=' + h.down.max + '  paddingL=' + h.down.pl + '  玻璃=' + h.down.glass);
+    console.log('  复位后 width=' + h.back.w + 'px  玻璃=' + h.back.glass);
+    console.log('  backdrop-filter: ' + h.down.blur);
+  } else {
+    console.log('  未能探测：' + JSON.stringify(report.header));
+  }
+
   console.log('\n=== 控制台 ===');
   console.log(report.console.length ? report.console.join('\n') : '无报错 ✓');
   console.log('\n=== 加载失败 ===');
