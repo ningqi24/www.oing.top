@@ -5,7 +5,8 @@
  * 而这两处恰恰是最容易出错、也最不该出错的地方。
  * （真正调 OpenRouter 的部分需要 key，不能在这里跑。）
  */
-import { isFree, rankFreeModels } from '../worker/src/models.js';
+import { isFree, isTextOutput, isChatCandidate, rankFreeModels } from '../worker/src/models.js';
+import { looksLikeReasoningLeak } from '../worker/src/index.js';
 import { buildMessages } from '../worker/src/prompt.js';
 import { FACTS, FALLBACK } from '../worker/src/facts.js';
 
@@ -13,13 +14,40 @@ const fails = [];
 const ok = (cond, msg) => { if (!cond) fails.push(msg); };
 
 /* ---------- 1. isFree：注意 pricing 的值是字符串 ---------- */
-const M = (id, ctx, p, c) => ({ id, context_length: ctx, pricing: { prompt: p, completion: c } });
+const M = (id, ctx, p, c, out) => ({
+  id, context_length: ctx, pricing: { prompt: p, completion: c },
+  architecture: { output_modalities: out || ['text'] },
+});
 ok(isFree(M('a:free', 1000, '0', '0')) === true, 'pricing 为字符串 "0" 时应判为免费');
 ok(isFree(M('b', 1000, 0, 0)) === true, 'pricing 为数字 0 时也应判为免费');
 ok(isFree(M('c', 1000, '0.000001', '0')) === false, 'prompt 不为 0 时不能判为免费');
 ok(isFree(M('d', 1000, '0', '0.5')) === false, 'completion 不为 0 时不能判为免费');
 ok(isFree(null) === false, 'null 不能崩');
 ok(isFree({ id: 'e' }) === false, '缺 pricing 字段不能崩');
+
+/* ---------- 1.5 isChatCandidate：光看价格不够 ---------- */
+/* 实测教训：零定价模型里混着音乐生成模型（google/lyria-*，输出 text+audio）
+   和内容审核分类器。只看价格会把它们当成对话模型。 */
+ok(isTextOutput({ architecture: { output_modalities: ['text'] } }) === true, '输出纯文本应通过');
+ok(isTextOutput({ architecture: { output_modalities: ['text', 'audio'] } }) === false,
+  '输出含音频的（音乐模型）不能当对话候选');
+ok(isTextOutput({ architecture: {} }) === false, '缺 output_modalities 不能崩，且应判否');
+ok(isTextOutput(null) === false, 'null 不能崩');
+const FREE_TEXT = { pricing: { prompt: '0', completion: '0' }, architecture: { output_modalities: ['text'] } };
+ok(isChatCandidate(FREE_TEXT) === true, '免费 + 输出纯文本 = 候选');
+ok(isChatCandidate({ ...FREE_TEXT, architecture: { output_modalities: ['text', 'audio'] } }) === false,
+  '免费音乐模型不能当候选');
+ok(isChatCandidate({ pricing: { prompt: '1', completion: '0' }, architecture: { output_modalities: ['text'] } }) === false,
+  '付费模型不能当候选');
+
+/* ---------- 1.6 looksLikeReasoningLeak：出口兜底 ---------- */
+/* 实测 nvidia/nemotron-3.5-lightning:free 会把推理过程直接吐进正文 */
+ok(looksLikeReasoningLeak("Here's a thinking process:\n1. Analyze User Input: ...") === true, '英文思维链泄漏应被拦');
+ok(looksLikeReasoningLeak('Thinking process: the user asks...') === true, 'Thinking process 应被拦');
+ok(looksLikeReasoningLeak('Let me analyze the question first.') === true, 'Let me analyze 应被拦');
+ok(looksLikeReasoningLeak('这个我还没法确认，可以发邮件到 official@astras.cc 问。') === false, '正常回答不能误伤');
+ok(looksLikeReasoningLeak('还没有确定的时间表，一旦确定会发在首页的「动态」那一栏。') === false, '正常回答不能误伤');
+ok(looksLikeReasoningLeak('x'.repeat(700)) === true, '超长回答（要求 100 字以内）应被判为跑偏');
 
 /* ---------- 2. rankFreeModels：优先名单 > 上下文长度 ---------- */
 const POOL = [
@@ -29,9 +57,12 @@ const POOL = [
   M('free/preferred-b', 32000, '0', '0'),
   M('free/preferred-a', 16000, '0', '0'),
   M('free/mid', 262144, '0', '0'),
+  // 零定价的音乐模型（实测 google/lyria-* 就是这样），必须被过滤掉
+  M('free/music', 1048576, '0', '0', ['text', 'audio']),
 ];
 const ranked = rankFreeModels(POOL, ['free/preferred-a', 'free/preferred-b']);
-ok(ranked.length === 5, '应只保留免费模型，实际 ' + ranked.length + ' 个');
+ok(ranked.length === 5, '应只保留「免费 + 输出纯文本」的，实际 ' + ranked.length + ' 个');
+ok(!ranked.some((m) => m.id === 'free/music'), '零定价的音乐模型不能被当成对话候选');
 ok(ranked[0].id === 'free/preferred-a', '优先名单第一项应排最前，实际 ' + ranked[0].id);
 ok(ranked[1].id === 'free/preferred-b', '优先名单第二项应排第二，实际 ' + ranked[1].id);
 ok(ranked[2].id === 'free/huge', '其余应按上下文从大到小，实际 ' + ranked[2].id);

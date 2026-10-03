@@ -59,6 +59,39 @@ async function pickModels(env) {
   return rankFreeModels(data && data.data, preferred).map((m) => m.id);
 }
 
+/**
+ * 记住上一次成功的模型，下次先试它。
+ * 免费模型 429 很常见，每次都从头轮询会白白多等好几个往返。
+ */
+const WORKING_KEY = new Request('https://oing-ask.internal/working');
+
+async function getWorking() {
+  try {
+    const hit = await caches.default.match(WORKING_KEY);
+    return hit ? (await hit.text()).trim() : '';
+  } catch (e) { return ''; }
+}
+
+async function setWorking(id) {
+  try {
+    await caches.default.put(WORKING_KEY, new Response(id, {
+      headers: { 'content-type': 'text/plain', 'cache-control': 'max-age=1800' },
+    }));
+  } catch (e) { /* 缓存失败不影响回答 */ }
+}
+
+/**
+ * 判断回答是不是"思维链泄漏"。
+ * 实测 nvidia/nemotron-3.5-lightning:free 会把推理过程直接吐进 content
+ * （"Here's a thinking process: 1. Analyze User Input: ..."），给用户看等于坏了。
+ * 提示词管不住这个，只能在出口拦一道 —— 命中了就换下一个模型。
+ */
+export function looksLikeReasoningLeak(text) {
+  const t = text.trim();
+  if (t.length > 600) return true;                 // 要求 100 字以内，超长基本是跑偏
+  return /^(here'?s?\s+(my|a|the)?\s*thinking|thinking process|let me (think|analyze|work)|i (need|should) to (analyze|figure|think)|首先[，,]?我?来分析|让我想一想)/i.test(t);
+}
+
 /** KV 计数器。写额度有限，所以这里只在"没超限"的路径上计两次。 */
 async function bump(env, key, ttl) {
   const cur = Number(await env.RATE.get(key)) || 0;
@@ -105,11 +138,15 @@ export default {
     let models = [];
     try { models = await pickModels(env); } catch (e) { /* 列表拉不到就退到下面的空数组 */ }
 
+    // 上次成功的排最前，其余按优先名单 + 上下文长度
+    const working = await getWorking();
+    if (working) models = [working].concat(models.filter((m) => m !== working));
+
     const messages = buildMessages(FACTS, query, lang);
     let lastStatus = 0;
 
     // 免费模型经常 429 或临时下线，所以按顺序往下试
-    for (const model of models.slice(0, 4)) {
+    for (const model of models.slice(0, 6)) {
       let res;
       try {
         res = await fetch(CHAT_URL, {
@@ -136,7 +173,9 @@ export default {
       try { data = await res.json(); } catch (e) { continue; }
       const text = data && data.choices && data.choices[0] &&
         data.choices[0].message && data.choices[0].message.content;
-      if (!text || !String(text).trim()) continue;
+      if (!text || !String(text).trim()) continue;        // 推理型模型可能把 token 全烧在推理上，content 为空
+      if (looksLikeReasoningLeak(text)) continue;          // 思维链泄漏，换下一个
+      await setWorking(model);
       return json({ text: String(text).trim(), model });
     }
 

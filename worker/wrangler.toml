@@ -10,9 +10,14 @@ routes = [
 
 [vars]
 # 优先使用的免费模型，按顺序尝试。留空则退化为"免费里自动挑上下文最大的"。
-# 注意：上下文最长 ≠ 中文最好、≠ 最稳，所以这里的人工名单是主要的，
-# 自动挑选只是名单全部不可用时的兜底。
-PREFERRED_MODELS = ""
+#
+# 下面这份是**实测筛出来的**（2026-10 实测）：既要有额度、又不出思维链、
+# 又能严格照着 system prompt 拒绝编造。按"答得干净 → 快"排序。
+# 被排除的：nvidia/nemotron-3.5-lightning:free（把推理过程吐进正文）、
+#           apodex/apodex-1.1-mini:free（推理吃满 token，content 为空）、
+#           thinkingmachines/inkling*（只对 agentic harness 开放）、
+#           google/lyria-*（音乐模型，不是对话模型）。
+PREFERRED_MODELS = "nvidia/nemotron-3-ultra-550b-a55b:free,dots-studio/dots-3-note-preview:free,poolside/laguna-s-2.1:free,qwen/qwen3.8-27b:free,inclusionai/ling-3.0-flash-sante:free,poolside/laguna-xs-2.1:free"
 
 # 限流计数器。不绑的话 Worker 会跳过限流（不推荐）。
 # 创建：npx wrangler kv namespace create RATE
