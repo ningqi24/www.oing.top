@@ -243,6 +243,43 @@ for (const f of HTML_FILES) {
 }
 if (!CFG.site || !/^https:\/\//.test(CFG.site)) fail('js/config.js 的 site 必须是 https 地址');
 
+/* --------------------- 6.5 站内问答的远端端点必须与隐私政策一致 */
+/*
+ * 这是本轮最容易忘、后果最严重的一条：一旦把提问发给第三方模型服务，
+ * 隐私政策里那句「本站不收集任何个人数据 / 不接入任何第三方」就变成不实陈述了。
+ * 所以只要配置里开了 askEndpoint，就强制要求隐私政策写明这件事。
+ */
+const askEndpoint = String(CFG.askEndpoint || '').trim();
+if (askEndpoint) {
+  for (const f of ['worker/src/index.js', 'worker/src/models.js', 'worker/src/prompt.js',
+                   'worker/wrangler.toml', 'worker/src/facts.js', 'scripts/build-facts.mjs']) {
+    if (!exists(f)) fail('config.js 配了 askEndpoint（' + askEndpoint + '），但缺少 ' + f);
+  }
+  const i18nSrc = read('js/i18n.js');
+  if (i18nSrc.indexOf('OpenRouter') === -1) {
+    fail('配了 askEndpoint，但隐私政策里没有写明「提问会被发送给 OpenRouter」—— 属于不实陈述');
+  }
+  if (i18nSrc.indexOf('不保存提问内容') === -1 || i18nSrc.indexOf('do not store your question') === -1) {
+    fail('隐私政策里没有写明「本站不保存提问内容」');
+  }
+  if (!/[Oo]penRouter/.test(read('legal.html')) && i18nSrc.indexOf('OpenRouter') === -1) {
+    fail('法务页没有向访客说明提问会转交第三方');
+  }
+  // worker 的事实库必须与 js/qa.js 同步
+  const qaSandbox2 = { window: {} };
+  vm.createContext(qaSandbox2);
+  vm.runInContext(read('js/qa.js'), qaSandbox2);
+  const qaList = qaSandbox2.window.OING_QA || [];
+  const workerFacts = read('worker/src/facts.js');
+  for (const entry of qaList) {
+    const text = entry.remoteZh || entry.zh;
+    if (text && workerFacts.indexOf(JSON.stringify(text)) === -1) {
+      fail('worker/src/facts.js 与 js/qa.js 不同步（条目 ' + entry.id + '），跑 npm run build:facts');
+      break;
+    }
+  }
+}
+
 /* ----------------------------------- 7 不得带入第三方品牌词 / 备案号 */
 /*
  * 规则设计（为什么不是简单地"出现即失败"）：

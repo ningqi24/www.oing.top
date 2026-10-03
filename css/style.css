@@ -457,6 +457,8 @@ html[lang="en"] .slogan {
   font-size: 13px; color: var(--text-placeholder);
 }
 .answer__foot a { margin-left: 6px; color: var(--brand-ink); font-weight: 500; }
+#answer-src { display: block; margin-bottom: 6px; color: var(--text-placeholder); }
+.answer.is-pending .answer__a { color: var(--text-placeholder); }
 .composer-tools { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
 
 .pill-toggle {

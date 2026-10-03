@@ -1,0 +1,25 @@
+name = "oing-ask"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+# 拦下 www.oing.top/api/*，其余请求照常回 GitHub Pages。
+# 因为域名解析本来就在 Cloudflare 上，所以不需要 CORS，也不会有跨域问题。
+routes = [
+  { pattern = "www.oing.top/api/*", zone_name = "oing.top" }
+]
+
+[vars]
+# 优先使用的免费模型，按顺序尝试。留空则退化为"免费里自动挑上下文最大的"。
+# 注意：上下文最长 ≠ 中文最好、≠ 最稳，所以这里的人工名单是主要的，
+# 自动挑选只是名单全部不可用时的兜底。
+PREFERRED_MODELS = ""
+
+# 限流计数器。不绑的话 Worker 会跳过限流（不推荐）。
+# 创建：npx wrangler kv namespace create RATE
+# 然后把返回的 id 填到下面。
+# [[kv_namespaces]]
+# binding = "RATE"
+# id = "<你的 KV namespace id>"
+
+# Secret（不要写进这个文件）：
+#   npx wrangler secret put OPENROUTER_API_KEY

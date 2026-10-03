@@ -99,8 +99,13 @@ window.OING_QA = [
     id: 'is-this-ai',
     keys: ['你是ai吗', '你是不是ai', '你是机器人吗', '你是模型吗', '你是人工吗', '你是不是真人',
            'are you an ai', 'are you a bot', 'is this a model', 'chatgpt', 'llm'],
+    // 这条必须分两版：有没有接远端模型，事实是不一样的。
+    // ask.js 按 config.askEndpoint 决定用哪版；worker 用 remote 那版
+    // （worker 只在接了远端时才存在）。改这里记得跑 npm run build:facts。
     zh: '不是。这里的回答是事先手写的，按关键词匹配出来的，没有任何模型参与 —— 所以它只会说已经确认过的内容，不会编。',
     en: 'No. These answers are hand-written and matched by keyword. No model is involved, so it can only repeat what has already been confirmed — it cannot make things up.',
+    remoteZh: '常见问题是事先手写的答案按关键词匹配回答的。没写在里面的问题会交给一个语言模型，但它被严格限制为只能依据站内已确认的事实作答，不允许猜测。',
+    remoteEn: 'Common questions here are answered by hand-written replies matched by keyword. Anything not covered is passed to a language model, but it is strictly limited to the confirmed facts listed on this site and is not allowed to guess.',
   },
   {
     id: 'tech',
