@@ -87,6 +87,19 @@
   --blur: 20px;
   --flow-alpha: .19;          /* 流场笔触强度：浅色底需要更重才可见 */
   --header-h: 64px;
+
+  /* 悬浮胶囊页头：下面两组是"未滚动 → 滚动后"的起止值，
+     js/header.js 在两者之间做弹簧插值。想调多细、多宽，改这里就行。 */
+  --hdr-top: 8px;             /* 容器顶部留白 */
+  --hdr-top-on: 5px;
+  --hdr-pad-y: 4px;           /* 胶囊纵向内边距 */
+  --hdr-pad-y-on: 2px;
+  --hdr-inner-h: 48px;        /* 胶囊内容高度 */
+  --hdr-inner-h-on: 42px;
+  --hdr-inset: 80px;          /* 滚动后左右各内缩多少（相对容器，不是绝对宽度） */
+  --hdr-pad-l-on: 18px;
+  --hdr-pad-r-on: 12px;
+  --hdr-inset-min: 720;       /* 容器窄于此值就不内缩，否则手机上有内容被挤爆 */
   --shell: 1080px;
   --ease: cubic-bezier(.22, .61, .36, 1);
 }
@@ -282,13 +295,13 @@ textarea { font: inherit; }
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
   width: min(100% - 32px, 1280px);
   margin: 0 auto;
-  padding: 8px 0 0;
+  padding: var(--hdr-top) 0 0;
   pointer-events: none;             /* 胶囊之外不挡底下的内容 */
 }
 .header-bar {
   max-width: 1280px;                /* ← 弹簧动画改这个值（未滚动 1280 / 滚动后 980 或 1180） */
   margin: 0 auto;
-  padding: 4px 0;                   /* ← 弹簧动画同时改 padding-left / padding-right */
+  padding: var(--hdr-pad-y) 0;      /* ← 弹簧动画改这里的四个值与 max-width */
   border: 1px solid transparent;
   border-radius: var(--r-pill);
   background: transparent;
@@ -307,7 +320,7 @@ textarea { font: inherit; }
     -webkit-backdrop-filter: blur(12px) saturate(170%);
   }
 }
-.header-inner { display: flex; align-items: center; gap: var(--s5); height: 48px; }
+.header-inner { display: flex; align-items: center; gap: var(--s5); height: var(--hdr-inner-h); }
 
 .brand { display: inline-flex; align-items: center; gap: 8px; flex: none; }
 .brand-mark { display: inline-flex; color: var(--brand-ink); }
@@ -597,8 +610,12 @@ html[lang="en"] .slogan {
   .shell, .hero-inner { width: min(var(--shell), 100% - 32px); }
 
   /* 移动端抽屉 */
-  .site-header { width: min(100% - 24px, 1280px); padding-top: 6px; }
-  .header-inner { height: 44px; }
+  :root {
+    --hdr-top: 6px; --hdr-top-on: 4px;
+    --hdr-inner-h: 44px; --hdr-inner-h-on: 40px;
+    --hdr-inset: 0px;           /* 手机上一律不内缩 */
+  }
+  .site-header { width: min(100% - 24px, 1280px); }
   .nav {
     position: fixed; inset: var(--header-h) 0 auto;
     flex-direction: column; align-items: stretch; gap: 0;

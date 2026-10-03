@@ -206,7 +206,8 @@ const main = async () => {
         '    const cs = getComputedStyle(bar);',
         '    return {',
         '      w: Math.round(bar.getBoundingClientRect().width * 10) / 10,',
-        '      max: cs.maxWidth, pl: cs.paddingLeft, pr: cs.paddingRight,',
+        '      h: Math.round(bar.getBoundingClientRect().height * 10) / 10,',
+        '      max: cs.maxWidth, pl: cs.paddingLeft, pr: cs.paddingRight, pt: cs.paddingTop,',
         '      glass: bar.classList.contains("is-scrolled"),',
         '      bg: cs.backgroundColor, blur: cs.backdropFilter || cs.webkitBackdropFilter || "none",',
         '    };',
@@ -229,11 +230,18 @@ const main = async () => {
 
       if (v && v.top && v.down) {
         // 收窄 + 内缩 + 玻璃
-        if (!(v.down.w < v.top.w - 5)) fail('滚动后胶囊没有收窄：' + v.top.w + 'px → ' + v.down.w + 'px');
+        // 横向：内缩量应等于 --hdr-inset（80px），不是写死的绝对宽度
+        const inset = v.top.w - v.down.w;
+        if (!(inset > 20)) fail('滚动后胶囊没有收窄：' + v.top.w + 'px → ' + v.down.w + 'px');
+        if (Math.abs(inset - 80) > 3) fail('横向内缩量应为 80px，实际 ' + Math.round(inset) + 'px');
+        if (v.down.w < 1000) fail('收窄后只有 ' + v.down.w + 'px，对本站页头内容来说太短了');
+        // 纵向：应当变薄
+        if (!(v.down.h < v.top.h - 4)) fail('滚动后胶囊没有变薄：' + v.top.h + 'px → ' + v.down.h + 'px');
         if (!v.down.glass) fail('滚动后没有加上 is-scrolled 类');
         if (v.down.blur === 'none') fail('滚动后玻璃没有模糊（backdrop-filter 仍是 none）');
         if (!(parseFloat(v.down.pl) > parseFloat(v.top.pl))) fail('滚动后左侧没有内缩');
         if (v.back && !(Math.abs(v.back.w - v.top.w) < 2)) fail('滚回顶部后胶囊没有复位：' + v.back.w + 'px（应回到 ' + v.top.w + 'px）');
+        if (v.back && !(Math.abs(v.back.h - v.top.h) < 2)) fail('滚回顶部后胶囊高度没有复位');
       } else {
         fail('页头探测失败：' + JSON.stringify(v));
       }
@@ -272,9 +280,10 @@ const main = async () => {
   console.log('\n=== 悬浮胶囊页头 ===');
   if (report.header && report.header.top) {
     const h = report.header;
-    console.log('  顶部   width=' + h.top.w + 'px  maxWidth=' + h.top.max + '  paddingL=' + h.top.pl + '  玻璃=' + h.top.glass);
-    console.log('  滚动后 width=' + h.down.w + 'px  maxWidth=' + h.down.max + '  paddingL=' + h.down.pl + '  玻璃=' + h.down.glass);
-    console.log('  复位后 width=' + h.back.w + 'px  玻璃=' + h.back.glass);
+    console.log('  顶部   ' + h.top.w + '×' + h.top.h + 'px   paddingL=' + h.top.pl + ' padY=' + h.top.pt + '  玻璃=' + h.top.glass);
+    console.log('  滚动后 ' + h.down.w + '×' + h.down.h + 'px   paddingL=' + h.down.pl + ' padY=' + h.down.pt + '  玻璃=' + h.down.glass);
+    console.log('  复位后 ' + h.back.w + '×' + h.back.h + 'px   玻璃=' + h.back.glass);
+    console.log('  横向内缩 ' + Math.round(h.top.w - h.down.w) + 'px · 纵向收 ' + Math.round(h.top.h - h.down.h) + 'px');
     console.log('  backdrop-filter: ' + h.down.blur);
   } else {
     console.log('  未能探测：' + JSON.stringify(report.header));

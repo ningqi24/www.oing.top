@@ -116,18 +116,32 @@ links: {
 
 ### 5. 调页头
 
-页头是一颗**悬浮玻璃胶囊**：未滚动时贴边、全宽、完全透明；滚过 `80px` 后收窄并向内缩，
-同时磨砂玻璃淡入浮起来。
+页头是一颗**悬浮玻璃胶囊**：未滚动时贴边、占满容器、完全透明；滚过 `80px` 后
+**横向内缩 + 纵向变薄**，同时磨砂玻璃淡入浮起来。
 
-- 收窄与内缩是**数值动画**，由 `js/header.js` 用弹簧积分驱动
-  （`stiffness 180 / damping 28 / mass 1`，`c ≈ 2√(k·m)` 刚好临界阻尼，不回弹）。
-  为什么要弹簧而不是 CSS transition：`width`/`padding` 走 CSS 过渡是"匀速 + 固定时长"，
-  中途上下滚动会显得机械；弹簧会带着当前速度继续走，所以连续滚动时手感是连续的。
-- 关键参数在 `js/header.js` 顶部：`THRESHOLD`（滚动阈值）、
-  `WIDE`（视口超过它，收窄后上限从 980 提到 1180）、`STIFFNESS` / `DAMPING`。
-- 玻璃外观在 `css/style.css` 的 `.header-bar.is-scrolled`
-  （`background` / `backdrop-filter: blur(12px) saturate(170%)` / `border-color`）。
-- `prefers-reduced-motion` 下不做动画，直接落值。
+**所有设计数值都在 CSS 变量里**（`css/style.css` 的 `--hdr-*`），`js/header.js` 只负责插值：
+
+| 变量 | 未滚动 | 滚动后 | 说明 |
+| --- | --- | --- | --- |
+| `--hdr-top` / `--hdr-top-on` | 8px | 5px | 容器顶部留白 |
+| `--hdr-pad-y` / `--hdr-pad-y-on` | 4px | 2px | 胶囊纵向内边距 |
+| `--hdr-inner-h` / `--hdr-inner-h-on` | 48px | 42px | 胶囊内容高度 |
+| `--hdr-inset` | — | 80px | 滚动后**左右各内缩**多少 |
+| `--hdr-pad-l-on` / `--hdr-pad-r-on` | — | 18 / 12px | 滚动后内容内缩 |
+| `--hdr-inset-min` | — | 720 | 容器窄于此值就不内缩 |
+
+想调"多细、多宽"直接改这几个变量，不用碰 JS。
+
+**为什么横向内缩用相对值而不是固定的 980px**：参考站写死 980px，那是按它
+"页头只有 logo + 一个按钮 + 语言切换"的内容量定的。本站页头有 logo + 4 个导航 +
+语言 + 主题 + 主按钮，写死会憋。改成"相对容器内缩固定距离"，内容再多也不会挤，
+窄屏还会自动不内缩。
+
+**为什么用弹簧而不是 CSS transition**：`width`/`padding`/`height` 走 CSS 过渡是
+"匀速收束 + 固定时长"，看着机械；弹簧（`stiffness 180 / damping 28 / mass 1`，
+`c ≈ 2√(k·m)` 刚好临界阻尼，不回弹）会带着当前速度继续走，连续上下滚动时手感是液态的。
+弹簧参数在 `js/header.js` 顶部。玻璃外观在 `.header-bar.is-scrolled`。
+`prefers-reduced-motion` 下不做动画，直接落值。
 
 ### 6. 换图标
 
