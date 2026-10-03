@@ -11,9 +11,12 @@
  *   POST /api/chat   { query: string, lang: 'zh' | 'en' }
  *   200 { text, model }
  *   400 { error: 'empty' }
+ *   404 { error: 'not_found' }
+ *   405 { error: 'method_not_allowed' }
  *   429 { error: 'rate_limited', scope }
- *   502 { error: 'upstream' }      上游全部失败
- *   503 { error: 'not_configured' } 没配 OPENROUTER_API_KEY
+ *   500 { error: 'internal' }        未预期的异常（已打日志）
+ *   502 { error: 'upstream', fallback } 上游全部失败，附带本地兜底文案
+ *   503 { error: 'not_configured' }  没配 OPENROUTER_API_KEY
  */
 import { FACTS, FALLBACK } from './facts.js';
 import { rankFreeModels } from './models.js';
@@ -28,14 +31,27 @@ const MAX_INPUT = 500;        // 输入字符上限
 const MAX_TOKENS = 160;       // 输出 token 上限（提示词要求 100 字以内，300 太宽只会拖慢生成）
 const MODELS_TTL = 6 * 3600;  // 模型列表缓存 6 小时
 
+/*
+ * 时间预算 —— 这两条是实测逼出来的。
+ *
+ * 线上出现过 43 秒的响应：某个免费模型卡住不返回，Worker 一直等，前端 22 秒超时
+ * 把整个请求丢掉 —— 既浪费了调用，用户拿到的还是更差的兜底答案。
+ *
+ * 所以：单个模型 8 秒不返回就放弃换下一个，整体最多花 20 秒。
+ * 宁可早一点给一个诚实的兜底，也不要让用户对着「正在查」干等。
+ */
+const ATTEMPT_TIMEOUT = 8000;
+const TOTAL_BUDGET = 20000;
+
 function json(body, status) {
   return new Response(JSON.stringify(body), {
     status: status || 200,
-    headers: {
-      'content-type': 'application/json; charset=utf-8',
-      'cache-control': 'no-store',
-    },
+    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
   });
+}
+
+function timeoutSignal(ms) {
+  return typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(ms) : undefined;
 }
 
 /** 读取免费模型列表，按优先名单排序。用 Cache API 缓存，不占 KV 写额度。 */
@@ -46,7 +62,7 @@ async function pickModels(env) {
   const hit = await cache.match(key);
   if (hit) { try { data = await hit.json(); } catch (e) { data = null; } }
   if (!data) {
-    const res = await fetch(MODELS_URL, { headers: { 'user-agent': 'oing-ask/1.0' } });
+    const res = await fetch(MODELS_URL, { headers: { 'user-agent': 'oing-ask/1.0' }, signal: timeoutSignal(6000) });
     if (!res.ok) throw new Error('models ' + res.status);
     data = await res.json();
     const cached = new Response(JSON.stringify(data), {
@@ -81,18 +97,18 @@ async function setWorking(id) {
 }
 
 /**
- * 判断回答是不是"思维链泄漏"。
+ * 判断回答是不是「思维链泄漏」。
  * 实测 nvidia/nemotron-3.5-lightning:free 会把推理过程直接吐进 content
  * （"Here's a thinking process: 1. Analyze User Input: ..."），给用户看等于坏了。
  * 提示词管不住这个，只能在出口拦一道 —— 命中了就换下一个模型。
  */
 export function looksLikeReasoningLeak(text) {
-  const t = text.trim();
+  const t = String(text || '').trim();
   if (t.length > 600) return true;                 // 要求 100 字以内，超长基本是跑偏
   return /^(here'?s?\s+(my|a|the)?\s*thinking|thinking process|let me (think|analyze|work)|i (need|should) to (analyze|figure|think)|首先[，,]?我?来分析|让我想一想)/i.test(t);
 }
 
-/** KV 计数器。写额度有限，所以这里只在"没超限"的路径上计两次。 */
+/** KV 计数器。写额度有限，所以只在「没超限」的路径上计两次。 */
 async function bump(env, key, ttl) {
   const cur = Number(await env.RATE.get(key)) || 0;
   const next = cur + 1;
@@ -117,88 +133,108 @@ async function checkLimits(env, ip) {
   }
 }
 
-export default {
-  async fetch(request, env) {
-    const url = new URL(request.url);
-    if (url.pathname !== '/api/chat') return json({ error: 'not_found' }, 404);
-    if (request.method === 'OPTIONS') return new Response(null, { status: 204 });
-    if (request.method !== 'POST') return json({ error: 'method_not_allowed' }, 405);
-    if (!env.OPENROUTER_API_KEY) return json({ error: 'not_configured' }, 503);
+async function handle(request, env) {
+  const url = new URL(request.url);
+  if (url.pathname !== '/api/chat') return json({ error: 'not_found' }, 404);
+  if (request.method === 'OPTIONS') return new Response(null, { status: 204 });
+  if (request.method !== 'POST') return json({ error: 'method_not_allowed' }, 405);
+  if (!env.OPENROUTER_API_KEY) return json({ error: 'not_configured' }, 503);
 
-    const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
-    const scope = await checkLimits(env, ip);
-    if (scope) return json({ error: 'rate_limited', scope }, 429);
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const scope = await checkLimits(env, ip);
+  if (scope) return json({ error: 'rate_limited', scope }, 429);
 
-    let body = null;
-    try { body = await request.json(); } catch (e) { /* 下面按空处理 */ }
-    const lang = body && body.lang === 'en' ? 'en' : 'zh';
-    const query = String((body && body.query) || '').trim().slice(0, MAX_INPUT);
-    if (!query) return json({ error: 'empty' }, 400);
+  let body = null;
+  try { body = await request.json(); } catch (e) { /* 下面按空处理 */ }
+  const lang = body && body.lang === 'en' ? 'en' : 'zh';
+  const query = String((body && body.query) || '').trim().slice(0, MAX_INPUT);
+  if (!query) return json({ error: 'empty' }, 400);
 
-    let models = [];
-    try { models = await pickModels(env); } catch (e) { /* 列表拉不到就退到下面的空数组 */ }
+  let models = [];
+  try { models = await pickModels(env); } catch (e) { /* 列表拉不到就退到下面的空数组 */ }
 
-    // 上次成功的排最前，其余按优先名单 + 上下文长度
-    const working = await getWorking();
-    if (working) models = [working].concat(models.filter((m) => m !== working));
+  // 上次成功的排最前，其余按优先名单 + 上下文长度
+  const working = await getWorking();
+  if (working) models = [working].concat(models.filter((m) => m !== working));
 
-    const messages = buildMessages(FACTS, query, lang);
-    let lastStatus = 0;
+  const messages = buildMessages(FACTS, query, lang);
+  const startedAt = Date.now();
+  let attempt = 0;
+  let lastStatus = 0;
 
-    // 免费模型经常 429 或临时下线，所以按顺序往下试。
-    // 每次尝试都打日志 —— 线上延迟的方差很大，只能靠 wrangler tail 看清时间花在哪。
-    const startedAt = Date.now();
-    let attempt = 0;
-    for (const model of models.slice(0, 6)) {
-      attempt++;
-      const t0 = Date.now();
-      let res;
-      try {
-        res = await fetch(CHAT_URL, {
-          method: 'POST',
-          headers: {
-            authorization: 'Bearer ' + env.OPENROUTER_API_KEY,
-            'content-type': 'application/json',
-            'HTTP-Referer': 'https://www.oing.top',
-            'X-Title': 'oing.top',
-          },
-          body: JSON.stringify({
-            model,
-            messages,
-            max_tokens: MAX_TOKENS,
-            temperature: 0.2,
-            top_p: 0.9,
-          }),
-        });
-      } catch (e) {
-        console.log(JSON.stringify({ ev: 'net-error', model, ms: Date.now() - t0, err: String(e.message || e).slice(0, 80) }));
-        continue;
-      }
-      lastStatus = res.status;
-      if (!res.ok) {
-        console.log(JSON.stringify({ ev: 'http-fail', model, status: res.status, ms: Date.now() - t0, attempt }));
-        continue;
-      }
-
-      let data = null;
-      try { data = await res.json(); } catch (e) { continue; }
-      const text = data && data.choices && data.choices[0] &&
-        data.choices[0].message && data.choices[0].message.content;
-      if (!text || !String(text).trim()) {
-        console.log(JSON.stringify({ ev: 'empty', model, ms: Date.now() - t0, finish: data.choices[0].finish_reason }));
-        continue;                                          // 推理型模型可能把 token 全烧在推理上，content 为空
-      }
-      if (looksLikeReasoningLeak(text)) {
-        console.log(JSON.stringify({ ev: 'reasoning-leak', model, ms: Date.now() - t0 }));
-        continue;                                          // 思维链泄漏，换下一个
-      }
-      console.log(JSON.stringify({ ev: 'ok', model, ms: Date.now() - t0, attempt, total: Date.now() - startedAt }));
-      await setWorking(model);
-      return json({ text: String(text).trim(), model });
+  // 免费模型经常 429 或临时下线，所以按顺序往下试。
+  // 每次尝试都打日志 —— 线上延迟的方差很大，只能靠 wrangler tail 看清时间花在哪。
+  for (const model of models.slice(0, 6)) {
+    if (Date.now() - startedAt > TOTAL_BUDGET) {
+      console.log(JSON.stringify({ ev: 'budget-exceeded', attempt, total: Date.now() - startedAt }));
+      break;
+    }
+    attempt++;
+    const t0 = Date.now();
+    let res;
+    try {
+      res = await fetch(CHAT_URL, {
+        method: 'POST',
+        headers: {
+          authorization: 'Bearer ' + env.OPENROUTER_API_KEY,
+          'content-type': 'application/json',
+          'HTTP-Referer': 'https://www.oing.top',
+          'X-Title': 'oing.top',
+        },
+        signal: timeoutSignal(ATTEMPT_TIMEOUT),
+        body: JSON.stringify({
+          model, messages, max_tokens: MAX_TOKENS, temperature: 0.2, top_p: 0.9,
+        }),
+      });
+    } catch (e) {
+      console.log(JSON.stringify({ ev: 'net-error', model, ms: Date.now() - t0, err: String((e && e.message) || e).slice(0, 80) }));
+      continue;
     }
 
-    // 全部失败：把本地兜底文案还回去，让前端至少给出一个诚实的回答
-    console.log(JSON.stringify({ ev: 'all-failed', models: attempt, total: Date.now() - startedAt, status: lastStatus }));
-    return json({ error: 'upstream', status: lastStatus, fallback: FALLBACK[lang] }, 502);
+    lastStatus = res.status;
+    if (!res.ok) {
+      console.log(JSON.stringify({ ev: 'http-fail', model, status: res.status, ms: Date.now() - t0, attempt }));
+      continue;
+    }
+
+    let data = null;
+    try { data = await res.json(); } catch (e) { continue; }
+
+    // ⚠️ 这里必须防住 choices 为空的情况：上游内容被过滤、或 provider 异常时
+    // 会返回一个 200 但 choices 是 []，直接取 [0].finish_reason 会抛异常 → 500。
+    // 线上真的踩到过。
+    const choice = data && Array.isArray(data.choices) ? data.choices[0] : null;
+    if (!choice) {
+      console.log(JSON.stringify({ ev: 'no-choice', model, ms: Date.now() - t0, body: JSON.stringify(data).slice(0, 120) }));
+      continue;
+    }
+    const text = choice.message && choice.message.content;
+    if (!text || !String(text).trim()) {
+      console.log(JSON.stringify({ ev: 'empty', model, ms: Date.now() - t0, finish: choice.finish_reason }));
+      continue;                                          // 推理型模型可能把 token 全烧在推理上，content 为空
+    }
+    if (looksLikeReasoningLeak(text)) {
+      console.log(JSON.stringify({ ev: 'reasoning-leak', model, ms: Date.now() - t0 }));
+      continue;                                          // 思维链泄漏，换下一个
+    }
+    console.log(JSON.stringify({ ev: 'ok', model, ms: Date.now() - t0, attempt, total: Date.now() - startedAt }));
+    await setWorking(model);
+    return json({ text: String(text).trim(), model });
+  }
+
+  // 全部失败：把本地兜底文案还回去，让前端至少给出一个诚实的回答
+  console.log(JSON.stringify({ ev: 'all-failed', models: attempt, total: Date.now() - startedAt, status: lastStatus }));
+  return json({ error: 'upstream', status: lastStatus, fallback: FALLBACK[lang] }, 502);
+}
+
+export default {
+  async fetch(request, env) {
+    // 兜底：任何未预期的异常都返回结构化错误，不要给前端一个空白的 500
+    try {
+      return await handle(request, env);
+    } catch (e) {
+      console.log(JSON.stringify({ ev: 'unhandled', err: String((e && e.stack) || e).slice(0, 240) }));
+      return json({ error: 'internal' }, 500);
+    }
   },
 };

@@ -17,9 +17,10 @@
   'use strict';
 
   var THRESHOLD = 0.42;
-  // 远端是免费模型，实测 1.5s ~ 30s 都有（免费额度会排队）。
-  // 超时要留足余量，否则会白白丢掉一个本来能拿到的回答。
-  var REMOTE_TIMEOUT = 22000;
+  // 远端是免费模型，实测 1.5s ~ 43s 都有（免费额度会排队）。
+  // Worker 那边有自己的时间预算（单模型 8 秒、整体 20 秒，见 worker/src/index.js），
+  // 所以这里只要略大于那个预算即可 —— 留太多会白等，留太少会把刚要返回的回答丢掉。
+  var REMOTE_TIMEOUT = 26000;
 
   var CFG = (typeof window !== 'undefined' && window.OING_CONFIG) || {};
   var ENDPOINT = typeof CFG.askEndpoint === 'string' ? CFG.askEndpoint.trim() : '';

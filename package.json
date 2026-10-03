@@ -11,6 +11,7 @@
     "test:qa": "node scripts/test-qa.mjs",
     "test:worker": "node scripts/test-worker.mjs",
     "test": "npm run test:qa && npm run test:worker",
+    "test:live": "node scripts/test-live.mjs",
     "serve": "node scripts/serve.mjs"
   },
   "engines": {

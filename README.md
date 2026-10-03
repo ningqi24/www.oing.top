@@ -230,9 +230,12 @@ git commit -m "ci: 启用自检工作流" && git push
 | `scripts/test-worker.mjs` | 免费模型判定/排序/提示词/事实同步的纯逻辑测试 |
 
 ```bash
-npm test              # 问答检索 + worker 逻辑
+npm test              # 问答检索 + worker 逻辑（本地，离线可跑）
+npm run test:live     # 线上验收：打真实域名，验证 Worker 接口与前端资源
 npm run build:facts   # 改了 js/qa.js 之后，重新生成 worker 的事实库
 ```
+
+`npm run test:live` 不能省 —— **部署之后到底通不通、会不会 500、延迟多长，
 
 ### 加一条问答
 
