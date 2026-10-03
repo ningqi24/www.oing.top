@@ -30,8 +30,8 @@
 <link rel="preload" href="assets/fonts/dm-sans-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/dm-sans-500.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/montserrat-500.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/fonts.css?v=2.2.0">
-<link rel="stylesheet" href="css/style.css?v=2.2.0">
+<link rel="stylesheet" href="css/fonts.css?v=2.3.0">
+<link rel="stylesheet" href="css/style.css?v=2.3.0">
 
 <script>
   /* 首屏前定主题，避免明暗切换时闪一下 */
@@ -69,7 +69,6 @@
     <nav class="nav" id="primary-nav" aria-label="主导航">
       <a href="#capability" data-i18n="nav.capability">能力</a>
       <a href="#news" data-i18n="nav.news">动态</a>
-      <a href="#" data-link="docs" data-i18n="nav.docs">开发文档</a>
       <a href="legal.html" data-i18n="nav.legal">法务</a>
     </nav>
 
@@ -82,7 +81,7 @@
         <svg class="i-sun" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><g stroke-width="2" stroke-linecap="round"><path d="M12 2.6v2.4M12 19v2.4M2.6 12h2.4M19 12h2.4M5.4 5.4l1.7 1.7M16.9 16.9l1.7 1.7M18.6 5.4l-1.7 1.7M7.1 16.9l-1.7 1.7"/></g></svg>
         <svg class="i-moon" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
       </button>
-      <a class="btn btn-primary btn-s" href="#top" data-link="chat" data-i18n="header.cta">开始使用</a>
+      <a class="btn btn-primary btn-s" href="#" data-link="github" data-i18n="header.cta">GitHub</a>
       <button type="button" class="icon-btn nav-toggle" id="nav-toggle" aria-label="打开菜单" aria-expanded="false" aria-controls="primary-nav">
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3.5 7h17M3.5 12h17M3.5 17h17" stroke-width="1.7" stroke-linecap="round"/></svg>
       </button>
@@ -106,7 +105,7 @@
           </defs>
           <path fill="url(#oing-sparkle)" d="M12 1.4c.55 5.05 2.85 7.9 9.2 9.2-6.35 1.3-8.65 4.15-9.2 9.2-.55-5.05-2.85-7.9-9.2-9.2 6.35-1.3 8.65-4.15 9.2-9.2z"/>
         </svg>
-        <span class="announce-text" data-i18n="announce.text">Oing v1.0 正式发布：更快、更准、更省。</span>
+        <span class="announce-text" data-i18n="announce.text">官网已上线，产品仍在开发中。</span>
         <span class="announce-more" data-i18n="announce.more">查看详情</span>
       </a>
 
@@ -136,20 +135,17 @@
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 19.5V5.4M6.3 11.1 12 5.4l5.7 5.7" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
         </div>
+        <p class="composer-note" data-i18n="composer.note">对话功能仍在开发中，现在还发不出去。</p>
       </form>
 
       <div class="hero-actions reveal">
-        <a class="btn btn-soft" href="#" data-link="chat">
-          <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 6.8h15v8.7h-9.2l-3.9 3.4v-3.4H4.5z" stroke-width="1.5" stroke-linejoin="round"/></svg>
-          <span data-i18n="hero.action.chat">开始对话</span>
+        <a class="btn btn-soft" href="#" data-link="github">
+          <svg class="btn-icon" viewBox="0 0 16 16" fill="currentColor" stroke="none" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+          <span data-i18n="hero.action.github">在 GitHub 上关注</span>
         </a>
-        <a class="btn btn-soft" href="#" data-link="platform">
-          <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.6 8 5.6 12l4 4M14.4 8l4 4-4 4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span data-i18n="hero.action.platform">开放平台</span>
-        </a>
-        <a class="btn btn-soft" href="#" data-link="docs">
-          <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.6h7.2L18.6 8v12.4H7z" stroke-width="1.5" stroke-linejoin="round"/><path d="M13.9 3.6V8h4.7" stroke-width="1.5" stroke-linejoin="round"/></svg>
-          <span data-i18n="hero.action.docs">开发文档</span>
+        <a class="btn btn-soft" href="#news">
+          <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h16M4 12h16M4 17.5h10" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
+          <span data-i18n="hero.action.news">了解进展</span>
         </a>
       </div>
     </div>
@@ -159,7 +155,10 @@
     <div class="shell">
       <div class="section-head reveal">
         <p class="eyebrow" data-i18n="cap.eyebrow">Capabilities</p>
-        <h2 data-i18n="cap.title">能力</h2>
+        <div>
+          <h2 data-i18n="cap.title">能力</h2>
+          <p class="section-note" data-i18n="cap.note">以下为正在开发中的能力，目前均未开放使用。</p>
+        </div>
       </div>
 
       <ul class="index-list">
@@ -182,34 +181,22 @@
 
       <ul>
         <li class="reveal">
-          <a class="news-row" href="#" data-link="blog">
-            <time datetime="2026-09-28">2026-09-28</time>
+          <div class="news-row is-static">
+            <time datetime="2026-10-02">2026-10-02</time>
             <span>
-              <span class="news-title" data-i18n="news.1.t">Oing v1.0 正式发布</span>
-              <span class="news-desc" data-i18n="news.1.d">首版开放对话、推理与联网能力。</span>
+              <span class="news-title" data-i18n="news.1.t">官网已上线</span>
+              <span class="news-desc" data-i18n="news.1.d">首页、能力说明与法务页面已就绪。</span>
             </span>
-            <span class="news-arrow" aria-hidden="true">→</span>
-          </a>
+          </div>
         </li>
         <li class="reveal">
-          <a class="news-row" href="#" data-link="platform">
-            <time datetime="2026-09-12">2026-09-12</time>
+          <div class="news-row is-static">
+            <time datetime="2026-10-02">2026-10-02</time>
             <span>
-              <span class="news-title" data-i18n="news.2.t">开放平台开始公测</span>
-              <span class="news-desc" data-i18n="news.2.d">开发者可以申请密钥并接入自己的应用。</span>
+              <span class="news-title" data-i18n="news.2.t">产品开发中</span>
+              <span class="news-desc" data-i18n="news.2.d">对话与开放平台尚未开放，进展会更新在这里。</span>
             </span>
-            <span class="news-arrow" aria-hidden="true">→</span>
-          </a>
-        </li>
-        <li class="reveal">
-          <a class="news-row" href="#" data-link="download">
-            <time datetime="2026-08-20">2026-08-20</time>
-            <span>
-              <span class="news-title" data-i18n="news.3.t">桌面端上线</span>
-              <span class="news-desc" data-i18n="news.3.d">支持全局唤起与本地文件读取。</span>
-            </span>
-            <span class="news-arrow" aria-hidden="true">→</span>
-          </a>
+          </div>
         </li>
       </ul>
     </div>
@@ -230,37 +217,22 @@
           <span class="brand-name">Oing</span>
         </a>
         <p data-i18n="footer.slogan">让智能更近一步。</p>
-        <div class="qr-box">
-          <img id="qr-img" src="assets/qr-placeholder.svg" alt="二维码" width="88" height="88" loading="lazy">
-          <span data-i18n="footer.qr">关注我们</span>
-        </div>
       </div>
 
       <div class="footer-cols">
         <div class="footer-col">
-          <p data-i18n="footer.col1">产品</p>
-          <nav>
-            <a href="#" data-link="chat" data-i18n="footer.chat">对话</a>
-            <a href="#" data-link="download" data-i18n="footer.download">客户端</a>
-            <a href="#" data-link="platform" data-i18n="footer.platform">开放平台</a>
-            <a href="#" data-link="status" data-i18n="footer.status">服务状态</a>
-          </nav>
-        </div>
-        <div class="footer-col">
-          <p data-i18n="footer.col2">资源</p>
-          <nav>
-            <a href="#" data-link="docs" data-i18n="footer.docs">开发文档</a>
-            <a href="#" data-link="blog" data-i18n="footer.blog">更新日志</a>
-            <a href="legal.html#terms" data-i18n="footer.terms">服务条款</a>
-            <a href="legal.html#privacy" data-i18n="footer.privacy">隐私政策</a>
-          </nav>
-        </div>
-        <div class="footer-col">
           <p data-i18n="footer.col3">关于</p>
           <nav>
-            <a href="#about" data-i18n="footer.about">关于我们</a>
-            <a href="mailto:hi@oing.top" id="contact-link" data-i18n="footer.contact">联系我们</a>
             <a href="#" data-link="github" data-i18n="footer.github">GitHub</a>
+            <a href="mailto:hi@oing.top" id="contact-link" data-i18n="footer.contact">联系我们</a>
+          </nav>
+        </div>
+        <div class="footer-col">
+          <p data-i18n="footer.col2">法务</p>
+          <nav>
+            <a href="legal.html#terms" data-i18n="footer.terms">服务条款</a>
+            <a href="legal.html#privacy" data-i18n="footer.privacy">隐私政策</a>
+            <a href="legal.html#disclaimer" data-i18n="footer.disclaimer">免责声明</a>
           </nav>
         </div>
       </div>
@@ -283,10 +255,10 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-<script src="js/config.js?v=2.2.0"></script>
-<script src="js/i18n.js?v=2.2.0"></script>
-<script src="js/flowfield.js?v=2.2.0"></script>
-<script src="js/header.js?v=2.2.0"></script>
-<script src="js/main.js?v=2.2.0"></script>
+<script src="js/config.js?v=2.3.0"></script>
+<script src="js/i18n.js?v=2.3.0"></script>
+<script src="js/flowfield.js?v=2.3.0"></script>
+<script src="js/header.js?v=2.3.0"></script>
+<script src="js/main.js?v=2.3.0"></script>
 </body>
 </html>
