@@ -177,26 +177,16 @@
   var qr = $('#qr-img');
   if (qr && CFG.qrImage) qr.setAttribute('src', CFG.qrImage);
 
-  var contact = $('#contact-link');
-  if (contact && CFG.email) contact.setAttribute('href', 'mailto:' + CFG.email);
+  // 所有联系入口都从 config.email 取，页面上不写死地址
+  if (CFG.email) {
+    $$('[data-email]').forEach(function (el) {
+      el.setAttribute('href', 'mailto:' + CFG.email);
+      if (el.hasAttribute('data-email-text')) el.textContent = CFG.email;
+    });
+  }
 
   var copyright = $('#copyright');
   if (copyright) copyright.textContent = '© ' + new Date().getFullYear() + ' ' + (CFG.brand || 'Oing');
-
-  var filing = $('#filing');
-  if (filing && (CFG.icp || CFG.police)) {
-    filing.hidden = false;
-    if (CFG.icp) {
-      var a = document.createElement('a');
-      a.href = 'https://beian.miit.gov.cn/'; a.target = '_blank'; a.rel = 'noopener';
-      a.textContent = CFG.icp; filing.appendChild(a);
-    }
-    if (CFG.police) {
-      var b = document.createElement('a');
-      b.href = 'https://beian.mps.gov.cn/'; b.target = '_blank'; b.rel = 'noopener';
-      b.textContent = CFG.police; filing.appendChild(b);
-    }
-  }
 
   /* ----------------------------------------------------------------- 初始化 */
   setLang(store(KEY.lang) === 'en' ? 'en' : 'zh');

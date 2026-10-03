@@ -129,6 +129,10 @@ const OVERFLOW_PROBE = `(() => {
   return { vw, docScrollWidth: document.documentElement.scrollWidth, offenders: out.slice(0, 12) };
 })()`;
 
+// 断言失败都记在这里，最后统一汇总并影响退出码。
+// （之前页头那段误用了 check.mjs 的 fail()，函数不存在，一失败就崩 —— 反而把真实问题藏了。）
+const fails = [];
+
 const main = async () => {
   fs.mkdirSync(SHOT_DIR, { recursive: true });
   const proc = await launch();
@@ -212,14 +216,24 @@ const main = async () => {
         '      bg: cs.backgroundColor, blur: cs.backdropFilter || cs.webkitBackdropFilter || "none",',
         '    };',
         '  };',
+        // headless 下 rAF 触发很慢，而单步时长被夹在 1/30 秒，固定等待并不可靠 ——
+        // 必须轮询到数值稳定再读数，否则会读到动画中途的值。
+        '  const settleRead = async (maxMs) => {',
+        '    let prev = null, stable = 0; const t0 = Date.now();',
+        '    while (Date.now() - t0 < maxMs) {',
+        '      await new Promise((r) => setTimeout(r, 100));',
+        '      const cur = read();',
+        '      if (prev && Math.abs(cur.w - prev.w) < 0.3 && Math.abs(cur.h - prev.h) < 0.3) { if (++stable >= 2) return cur; }',
+        '      else stable = 0;',
+        '      prev = cur;',
+        '    }',
+        '    return read();',
+        '  };',
         '  const top = read();',
         '  window.scrollTo(0, 600);',
-        '  await new Promise((r) => setTimeout(r, 1700));',
-        '  const down = read();',
-        '  const shot = null;',
+        '  const down = await settleRead(8000);',
         '  window.scrollTo(0, 0);',
-        '  await new Promise((r) => setTimeout(r, 1700));',
-        '  const back = read();',
+        '  const back = await settleRead(8000);',
         '  return { top, down, back };',
         '})()',
       ].join('\n');
@@ -232,18 +246,18 @@ const main = async () => {
         // 收窄 + 内缩 + 玻璃
         // 横向：内缩量应等于 --hdr-inset（80px），不是写死的绝对宽度
         const inset = v.top.w - v.down.w;
-        if (!(inset > 20)) fail('滚动后胶囊没有收窄：' + v.top.w + 'px → ' + v.down.w + 'px');
-        if (Math.abs(inset - 80) > 3) fail('横向内缩量应为 80px，实际 ' + Math.round(inset) + 'px');
-        if (v.down.w < 1000) fail('收窄后只有 ' + v.down.w + 'px，对本站页头内容来说太短了');
+        if (!(inset > 20)) fails.push('滚动后胶囊没有收窄：' + v.top.w + 'px → ' + v.down.w + 'px');
+        if (Math.abs(inset - 80) > 3) fails.push('横向内缩量应为 80px，实际 ' + Math.round(inset) + 'px');
+        if (v.down.w < 1000) fails.push('收窄后只有 ' + v.down.w + 'px，对本站页头内容来说太短了');
         // 纵向：应当变薄
-        if (!(v.down.h < v.top.h - 4)) fail('滚动后胶囊没有变薄：' + v.top.h + 'px → ' + v.down.h + 'px');
-        if (!v.down.glass) fail('滚动后没有加上 is-scrolled 类');
-        if (v.down.blur === 'none') fail('滚动后玻璃没有模糊（backdrop-filter 仍是 none）');
-        if (!(parseFloat(v.down.pl) > parseFloat(v.top.pl))) fail('滚动后左侧没有内缩');
-        if (v.back && !(Math.abs(v.back.w - v.top.w) < 2)) fail('滚回顶部后胶囊没有复位：' + v.back.w + 'px（应回到 ' + v.top.w + 'px）');
-        if (v.back && !(Math.abs(v.back.h - v.top.h) < 2)) fail('滚回顶部后胶囊高度没有复位');
+        if (!(v.down.h < v.top.h - 4)) fails.push('滚动后胶囊没有变薄：' + v.top.h + 'px → ' + v.down.h + 'px');
+        if (!v.down.glass) fails.push('滚动后没有加上 is-scrolled 类');
+        if (v.down.blur === 'none') fails.push('滚动后玻璃没有模糊（backdrop-filter 仍是 none）');
+        if (!(parseFloat(v.down.pl) > parseFloat(v.top.pl))) fails.push('滚动后左侧没有内缩');
+        if (v.back && !(Math.abs(v.back.w - v.top.w) < 2)) fails.push('滚回顶部后胶囊没有复位：' + v.back.w + 'px（应回到 ' + v.top.w + 'px）');
+        if (v.back && !(Math.abs(v.back.h - v.top.h) < 2)) fails.push('滚回顶部后胶囊高度没有复位');
       } else {
-        fail('页头探测失败：' + JSON.stringify(v));
+        fails.push('页头探测失败：' + JSON.stringify(v));
       }
 
       // 滚动状态截图，便于肉眼复核
@@ -295,8 +309,18 @@ const main = async () => {
   console.log(report.failed.length ? JSON.stringify(report.failed) : '无 ✓');
   if (report.shots.length) console.log('\n截图：\n' + report.shots.join('\n'));
 
+  console.log('');
+  if (fails.length) {
+    console.log('=== 断言失败 ===');
+    fails.forEach((f) => console.log('  x ' + f));
+  } else {
+    console.log('断言全部通过 ✓');
+  }
+
   const overflow = report.widths.some((w) => w.offenders.some((o) => o.over > 1));
-  process.exit(overflow || report.console.length ? 1 : 0);
+  const consoleErrors = report.console.length;
+  const loadErrors = report.failed.length;
+  process.exit(overflow || consoleErrors || loadErrors || fails.length ? 1 : 0);
 };
 
 main().catch((e) => { console.error('审计失败：' + e.message); process.exit(2); });

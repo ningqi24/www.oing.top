@@ -12,10 +12,18 @@ window.OING_CONFIG = {
 
   /** 品牌信息 */
   brand: 'Oing',
-  /** 备案号等信息，留空则不显示 */
-  icp: '',
-  police: '',
-  email: 'hi@oing.top',
+
+  /**
+   * 联系邮箱。页脚与法务页的联系入口都从这里取，
+   * 页面上不写死地址（HTML 里的 mailto 只是无脚本时的兜底）。
+   */
+  email: 'official@astras.cc',
+
+  /**
+   * 本站托管在境外（GitHub Pages + Cloudflare），不做 ICP 备案，
+   * 页脚因此不显示备案号，相关代码已移除。
+   * 若将来改为境内托管并完成备案，再补回页脚的备案号元素与渲染逻辑。
+   */
 
   /** 各入口地址。目前只有 github 是真实可用的，页面也只渲染了这一个。 */
   links: {
