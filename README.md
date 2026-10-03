@@ -205,7 +205,8 @@ git commit -m "ci: 启用自检工作流" && git push
 
 - **改完先 `npm run check`**：一次检查 i18n 词条完整性、资源引用是否存在、
   字体文件是否存在、版本号是否同步、标签是否闭合、id 是否重复、
-  `data-link` 是否合法、有没有混入第三方品牌词。
+  `data-link` 是否合法、有没有混入第三方品牌词，以及**HTML 里写死的兜底文本是否与中文词条一致**
+  （页面在 JS 跑起来之前用兜底文本渲染，漂移了无脚本用户就会看到过期内容）。
 - **`npm run audit` 看移动端**：横向溢出是移动端最容易出的问题，靠肉眼很难发现。
   它同时会实测页头：滚动前后的实际宽度、`padding-left`、`is-scrolled` 类、`backdrop-filter`
   是否都按预期变化，并截两张对比图（`.tmp/header-top.png` / `.tmp/header-scrolled.png`）。

@@ -90,6 +90,24 @@ for (const lang of ['zh', 'en']) {
   }
 }
 
+/* ------------------------------- 1.5 HTML 兜底文本必须与中文词条一致 */
+// 页面在 JS 跑起来之前用 HTML 里写死的文本渲染；如果它和词条漂移了，
+// 无脚本用户（以及首屏前的一瞬间）看到的就是过期内容。这条规则专门防这个。
+const FALLBACK = /<([a-z0-9]+)([^>]*?\sdata-i18n="([^"]+)"[^>]*)>([^<]*)<\/\1>/gi;
+for (const f of HTML_FILES) {
+  const src = read(f);
+  for (const m of src.matchAll(FALLBACK)) {
+    const key = m[3];
+    const shown = m[4].trim();
+    if (!shown) continue;                       // 空元素交给 JS 填，不校验
+    const expect = (DICT.zh || {})[key];
+    if (typeof expect !== 'string') continue;   // 缺词条的问题上面已经报过
+    if (shown !== expect) {
+      fail(f + ' 的兜底文本与词条不一致：' + key + '\n      页面写的是「' + shown + '」\n      词条里是「' + expect + '」');
+    }
+  }
+}
+
 /* ------------------------------------------------ 2 本地资源引用都存在 */
 const ASSET_ATTR = /(?:src|href)="([^"]+)"/g;
 for (const f of HTML_FILES) {
