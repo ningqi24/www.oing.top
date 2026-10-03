@@ -23,8 +23,9 @@
 品牌名 `Oing`、圆环 + 轨道点图形、全部中英文案、全部 CSS 与 JS（含流场动画的实现）、
 图标（由 `scripts/gen-icons.mjs` 用代码绘制）、字体（DM Sans / Montserrat，SIL OFL 1.1，见 `assets/fonts/LICENSE-*.txt`）。
 
-`npm run check` 里有一道**硬门禁**：只要页面文件里出现第三方品牌词或备案号，自检直接失败。
-这条规则是为了防止以后不小心把别人的东西带回来。
+**这条边界现在靠人守。** 以前 `npm run check` 里有一道硬门禁（页面里出现第三方品牌词或
+备案号就失败），2026-10 精简自检时去掉了。规矩没变：不要为了「看起来像」把别人的商标、
+素材、文案带回来。唯一的例外是站内问答里那几句**明确声明无关联**的话。
 
 > 判断依据很简单：**设计语言**（配色、留白、排版、交互方式）不受著作权保护；
 > **商标、文案、图片素材、源代码**受保护。分界线就在这里。
@@ -56,7 +57,7 @@
 │   └── qr-placeholder.svg
 ├── scripts/
 │   ├── gen-icons.mjs           零依赖 PNG 生成器（自写 PNG 编码 + 栅格化）
-│   ├── check.mjs               自检门禁：npm run check
+│   ├── check.mjs               自检：npm run check（词条 / 兜底文案 / 版本指纹）
 │   ├── audit.mjs               浏览器实测：多视口溢出 + 控制台 + 截图
 │   └── serve.mjs               本地预览服务器
 └── .github/check-workflow.yml  CI 配置（启用方法见第六节）
@@ -70,8 +71,13 @@
 
 ```bash
 npm run serve     # 本地预览 http://127.0.0.1:4173/
-npm run check     # 自检（提交前务必跑一遍）
+npm run check     # 自检（提交前跑一遍）
+npm run test      # 问答检索 + Worker 纯逻辑
+npm run test:live # 打真实域名验收（接口契约 + 安全断言 + Worker 事实库指纹）
 npm run audit     # 用无头 Edge/Chrome 实测 390 / 768 / 1440 三个宽度并截图到 .tmp/
+npm run bump -- 2.13.0   # 改版本号 + 全部 ?v= + 资源指纹（改完 css/js 必须跑）
+npm run sync:html # 把 HTML 兜底文案从中文词条同步过去
+npm run deploy:worker    # 重新生成事实库并部署 Worker
 npm run icons     # 重新生成图标与分享封面
 ```
 
@@ -249,17 +255,24 @@ npm run build:facts   # 改了 js/qa.js 之后，重新生成 worker 的事实�
 
 - **`is-this-ai` 那条分「本地版」和「接了模型版」两套答案**（`zh`/`en` 与 `remoteZh`/`remoteEn`）。
   有没有接远端，事实是不一样的 —— 接了却还用本地版，就是不实陈述。
-- **一旦配了 `askEndpoint`，隐私政策必须同步**。`npm run check` 里有硬规则盯着：
-  没写明「提问会发给 OpenRouter」或没写「本站不保存提问内容」，自检直接失败。
+- **一旦配了 `askEndpoint`，隐私政策必须同步**：要写明「提问会发给 OpenRouter」和
+  「本站不保存提问内容」。这条以前有自检硬规则盯着，精简时去掉了 —— **现在只能靠人记住**。
+  改配置时务必一起改 `legal.html` 的隐私政策，否则就是不实陈述。
 
 ---
 
 ## 七、维护备忘
 
-- **改完先 `npm run check`**：一次检查 i18n 词条完整性、资源引用是否存在、
-  字体文件是否存在、版本号是否同步、标签是否闭合、id 是否重复、
-  `data-link` 是否合法、有没有混入第三方品牌词，以及**HTML 里写死的兜底文本是否与中文词条一致**
-  （页面在 JS 跑起来之前用兜底文本渲染，漂移了无脚本用户就会看到过期内容）。
+- **改完先 `npm run check`**（2026-10 已精简，只查三类真正抓到过 bug 的）：
+  1. **i18n key 存在性** —— 中英两份都要有，且词条数一致；
+  2. **HTML 兜底文案与中文词条一致** —— 元素文字 / `placeholder` / `aria-label`。
+     页面在 JS 跑起来之前用兜底文本渲染，漂移了无脚本用户就会看到过期内容
+     （`placeholder` 漏同步过一次，浏览器里完全看不出来）。跑 `npm run sync:html` 自动同步；
+  3. **资源版本与指纹** —— css/js 内容变了就必须 `npm run bump -- <版本号>`。
+     否则浏览器/CDN 继续用旧文件，表现是「明明推上去了却没变化」。这条抓到过两次。
+
+  曾经还查资源存在性、标签配平、id 重复、`data-link` 合法性、第三方品牌词、字体文件、
+  流场接线、问答结构 —— 都没有抓到过实际 bug，按决定精简掉了（需要时从 git 历史找回来）。
 - **`npm run audit` 看移动端**：横向溢出是移动端最容易出的问题，靠肉眼很难发现。
   它同时会实测页头：滚动前后的实际宽度、`padding-left`、`is-scrolled` 类、`backdrop-filter`
   是否都按预期变化，并截两张对比图（`.tmp/header-top.png` / `.tmp/header-scrolled.png`）。
