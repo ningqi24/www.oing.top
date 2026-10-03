@@ -172,6 +172,30 @@ for (const f of fontFiles) {
   if (!exists(f)) fail('css/fonts.css 引用了不存在的字体文件 ' + f);
 }
 
+/* placeholder / aria-label 的兜底值也必须与 zh 词条一致（曾经漏同步过 placeholder） */
+const i18nZhSandbox = { window: {} };
+vm.createContext(i18nZhSandbox);
+vm.runInContext(read('js/i18n.js'), i18nZhSandbox);
+const ZH = ((i18nZhSandbox.window.OING_I18N || {}).zh) || {};
+for (const file of HTML_FILES) {
+  const src = read(file);
+  const checkAttr = (marker, attr) => {
+    const re = new RegExp('<[a-z0-9]+[^>]*\\s' + attr + '="([^"]*)"[^>]*\\s' + marker + '="([^"]+)"[^>]*>', 'gi');
+    let m;
+    while ((m = re.exec(src))) {
+      const value = m[1];
+      const key = m[2];
+      if (!value.trim()) continue;                  // 故意留空的跳过
+      if (ZH[key] && value !== ZH[key]) {
+        fail(file + ' 的 ' + marker + '="' + key + '" 兜底值不一致：' + JSON.stringify(value) +
+          ' ≠ ' + JSON.stringify(ZH[key]) + '（跑 npm run sync:html）');
+      }
+    }
+  };
+  checkAttr('data-i18n-placeholder', 'placeholder');
+  checkAttr('data-i18n-label', 'aria-label');
+}
+
 /* js/i18n.js 必须导出界面依赖的两个函数 —— 曾经在重写文案时把整段弄丢过 */
 const i18nSrc = read('js/i18n.js');
 for (const fn of ['window.oingApplyLang', 'window.oingT']) {
