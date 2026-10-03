@@ -17,7 +17,9 @@
   'use strict';
 
   var THRESHOLD = 0.42;
-  var REMOTE_TIMEOUT = 12000;
+  // 远端是免费模型，实测 1.5s ~ 30s 都有（免费额度会排队）。
+  // 超时要留足余量，否则会白白丢掉一个本来能拿到的回答。
+  var REMOTE_TIMEOUT = 22000;
 
   var CFG = (typeof window !== 'undefined' && window.OING_CONFIG) || {};
   var ENDPOINT = typeof CFG.askEndpoint === 'string' ? CFG.askEndpoint.trim() : '';

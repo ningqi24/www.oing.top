@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "oing.top 站内问答的后端：把本地事实库没覆盖的问题交给 OpenRouter 免费模型，并用 system prompt 把它锁死在已确认事实上。"
+  "description": "oing.top 站内问答的后端：把本地事实库没覆盖的问题交给 OpenRouter 免费模型，并用 system prompt 把它锁死在已确认事实上。",
+  "dependencies": {
+    "wrangler": "^4.147.0"
+  }
 }

@@ -25,7 +25,7 @@ const CHAT_URL = 'https://openrouter.ai/api/v1/chat/completions';
 // 限流阈值。免费额度是有限的，而这是个公开接口 —— 没有上限等于把 key 半公开。
 const LIMITS = { perIpPerMinute: 6, globalPerDay: 600 };
 const MAX_INPUT = 500;        // 输入字符上限
-const MAX_TOKENS = 300;       // 输出 token 上限
+const MAX_TOKENS = 160;       // 输出 token 上限（提示词要求 100 字以内，300 太宽只会拖慢生成）
 const MODELS_TTL = 6 * 3600;  // 模型列表缓存 6 小时
 
 function json(body, status) {
@@ -145,8 +145,13 @@ export default {
     const messages = buildMessages(FACTS, query, lang);
     let lastStatus = 0;
 
-    // 免费模型经常 429 或临时下线，所以按顺序往下试
+    // 免费模型经常 429 或临时下线，所以按顺序往下试。
+    // 每次尝试都打日志 —— 线上延迟的方差很大，只能靠 wrangler tail 看清时间花在哪。
+    const startedAt = Date.now();
+    let attempt = 0;
     for (const model of models.slice(0, 6)) {
+      attempt++;
+      const t0 = Date.now();
       let res;
       try {
         res = await fetch(CHAT_URL, {
@@ -165,21 +170,35 @@ export default {
             top_p: 0.9,
           }),
         });
-      } catch (e) { continue; }
+      } catch (e) {
+        console.log(JSON.stringify({ ev: 'net-error', model, ms: Date.now() - t0, err: String(e.message || e).slice(0, 80) }));
+        continue;
+      }
       lastStatus = res.status;
-      if (!res.ok) continue;
+      if (!res.ok) {
+        console.log(JSON.stringify({ ev: 'http-fail', model, status: res.status, ms: Date.now() - t0, attempt }));
+        continue;
+      }
 
       let data = null;
       try { data = await res.json(); } catch (e) { continue; }
       const text = data && data.choices && data.choices[0] &&
         data.choices[0].message && data.choices[0].message.content;
-      if (!text || !String(text).trim()) continue;        // 推理型模型可能把 token 全烧在推理上，content 为空
-      if (looksLikeReasoningLeak(text)) continue;          // 思维链泄漏，换下一个
+      if (!text || !String(text).trim()) {
+        console.log(JSON.stringify({ ev: 'empty', model, ms: Date.now() - t0, finish: data.choices[0].finish_reason }));
+        continue;                                          // 推理型模型可能把 token 全烧在推理上，content 为空
+      }
+      if (looksLikeReasoningLeak(text)) {
+        console.log(JSON.stringify({ ev: 'reasoning-leak', model, ms: Date.now() - t0 }));
+        continue;                                          // 思维链泄漏，换下一个
+      }
+      console.log(JSON.stringify({ ev: 'ok', model, ms: Date.now() - t0, attempt, total: Date.now() - startedAt }));
       await setWorking(model);
       return json({ text: String(text).trim(), model });
     }
 
     // 全部失败：把本地兜底文案还回去，让前端至少给出一个诚实的回答
+    console.log(JSON.stringify({ ev: 'all-failed', models: attempt, total: Date.now() - startedAt, status: lastStatus }));
     return json({ error: 'upstream', status: lastStatus, fallback: FALLBACK[lang] }, 502);
   },
 };

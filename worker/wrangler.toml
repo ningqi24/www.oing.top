@@ -1,6 +1,7 @@
 name = "oing-ask"
 main = "src/index.js"
 compatibility_date = "2025-01-01"
+account_id = "da5d0f098c9190f3650c84e28a26b266"
 
 # 拦下 www.oing.top/api/*，其余请求照常回 GitHub Pages。
 # 因为域名解析本来就在 Cloudflare 上，所以不需要 CORS，也不会有跨域问题。
@@ -20,11 +21,10 @@ routes = [
 PREFERRED_MODELS = "nvidia/nemotron-3-ultra-550b-a55b:free,dots-studio/dots-3-note-preview:free,poolside/laguna-s-2.1:free,qwen/qwen3.8-27b:free,inclusionai/ling-3.0-flash-sante:free,poolside/laguna-xs-2.1:free"
 
 # 限流计数器。不绑的话 Worker 会跳过限流（不推荐）。
-# 创建：npx wrangler kv namespace create RATE
-# 然后把返回的 id 填到下面。
-# [[kv_namespaces]]
-# binding = "RATE"
-# id = "<你的 KV namespace id>"
+# 重建：npx wrangler kv namespace create RATE，然后把返回的 id 填到这里。
+[[kv_namespaces]]
+binding = "RATE"
+id = "36f6fcaff63446af8d331785da390796"
 
 # Secret（不要写进这个文件）：
 #   npx wrangler secret put OPENROUTER_API_KEY
