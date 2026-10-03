@@ -155,12 +155,26 @@
       cancelAnimationFrame(raf);
     }
 
+    var sized = false;
+
     function resize() {
       var rect = canvas.getBoundingClientRect();
       if (rect.width < 2 || rect.height < 2) return;
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-      w = Math.round(rect.width);
-      h = Math.round(rect.height);
+      var ndpr = Math.min(window.devicePixelRatio || 1, 2);
+      var nw = Math.round(rect.width);
+      var nh = Math.round(rect.height);
+
+      // 尺寸真的变了才重做。给 canvas.width 赋值会**清空画布**并重跑整段暖机，
+      // 而 Android Chrome 的地址栏伸缩 / 滚动过程中会连续触发 resize ——
+      // 每次都重做，看起来就是画面在反复闪（还要同步阻塞主线程）。
+      if (sized && nw === w && nh === h && ndpr === dpr) {
+        if (shouldAnimate() && !reduceQuery.matches && visible) start(); else stop();
+        return;
+      }
+      sized = true;
+      dpr = ndpr;
+      w = nw;
+      h = nh;
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -170,7 +184,9 @@
       // 先空跑一段，进去时就已经有成型的气流，而不是从空白慢慢长出来
       ctx.clearRect(0, 0, w, h);
       // 静态帧多跑一段，画面更饱满（只算一次）；动画模式照旧 90 步暖机
-      var warm = shouldAnimate() ? 90 : 220;
+      // 静态帧也要控量：这段是在解析阶段同步跑的，跑太久会阻塞首屏绘制，
+      // 在慢手机上表现成"进去先卡一下 / 闪一下"。120 步已经够饱满。
+      var warm = shouldAnimate() ? 90 : 120;
       for (var i = 0; i < warm; i++) { fade(); stepParticles(true); }
       // 小屏只留这张静态帧；只有该动的时候才启动 rAF
       if (shouldAnimate() && !reduceQuery.matches && visible) start(); else stop();
@@ -218,6 +234,13 @@
 
   function boot() {
     var canvas = document.querySelector('.hero-canvas');
+    // 诊断开关：?nocanvas=1 把画布**整个移除**。
+    // 之前只有 ?noanim=1（停动画、画布还在），测不出"这个合成图层本身"有没有关系 ——
+    // 一块 780×1450 的透明 canvas 在 Android 上被提升为独立图层时可能引发整屏闪烁。
+    if (canvas && /[?&]nocanvas=1/.test(search)) {
+      canvas.parentNode.removeChild(canvas);
+      return;
+    }
     if (canvas) mount(canvas);
   }
 

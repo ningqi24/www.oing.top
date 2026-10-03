@@ -2,6 +2,7 @@
 <html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="utf-8">
+<meta name="color-scheme" content="light dark">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>页面走丢了 — Oing</title>
 <meta name="robots" content="noindex">
@@ -9,8 +10,17 @@
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-<link rel="stylesheet" href="/css/fonts.css?v=2.11.0">
-<link rel="stylesheet" href="/css/style.css?v=2.11.0">
+<style>
+  /* 首屏关键样式：必须在外部 CSS 到达之前就定下背景色与 color-scheme。
+     否则深色模式下浏览器会先按 color-scheme: light 画一帧白底，等 css/style.css
+     到了再翻黑 —— 整屏闪一下。手机上（网络慢 + 深色模式）尤其明显。
+     注意这里只能放"首帧就要对"的东西，别的样式不要往这塞。 */
+  html { background: #f9f8f8; color-scheme: light; }
+  html[data-theme="dark"] { background: #0f1115; color-scheme: dark; }
+</style>
+
+<link rel="stylesheet" href="/css/fonts.css?v=2.12.0">
+<link rel="stylesheet" href="/css/style.css?v=2.12.0">
 <script>
   (function () {
     try {
@@ -123,10 +133,10 @@
   </footer>
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
-  <script src="/js/config.js?v=2.11.0"></script>
-  <script src="/js/i18n.js?v=2.11.0"></script>
-  <script src="/js/header.js?v=2.11.0"></script>
-  <script src="/js/main.js?v=2.11.0"></script>
-<script src="/js/flowfield.js?v=2.11.0"></script>
+  <script src="/js/config.js?v=2.12.0"></script>
+  <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/header.js?v=2.12.0"></script>
+  <script src="/js/main.js?v=2.12.0"></script>
+<script src="/js/flowfield.js?v=2.12.0"></script>
 </body>
 </html>

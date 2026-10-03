@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oing — 让智能更近一步</title>
-<meta name="description" content="Oing 是一个专注于理解与创造的通用智能助手。提问、写作、编程、分析，从一句话开始。">
+<meta name="description" content="Oing 是一个通用工具，目前仍在开发中。本站为其官方页面，用于说明开发进展。">
+<meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#f9f8f8" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)">
 <link rel="canonical" href="https://www.oing.top/">
@@ -12,14 +13,14 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Oing">
 <meta property="og:title" content="Oing — 让智能更近一步">
-<meta property="og:description" content="一个专注于理解与创造的通用智能助手。">
+<meta property="og:description" content="一个通用工具，目前仍在开发中。">
 <meta property="og:url" content="https://www.oing.top/">
 <meta property="og:image" content="https://www.oing.top/assets/og-cover.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Oing — 让智能更近一步">
-<meta name="twitter:description" content="一个专注于理解与创造的通用智能助手。">
+<meta name="twitter:description" content="一个通用工具，目前仍在开发中。">
 <meta name="twitter:image" content="https://www.oing.top/assets/og-cover.png">
 
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -30,8 +31,17 @@
 <link rel="preload" href="assets/fonts/dm-sans-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/dm-sans-500.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/montserrat-500.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/fonts.css?v=2.11.0">
-<link rel="stylesheet" href="css/style.css?v=2.11.0">
+<style>
+  /* 首屏关键样式：必须在外部 CSS 到达之前就定下背景色与 color-scheme。
+     否则深色模式下浏览器会先按 color-scheme: light 画一帧白底，等 css/style.css
+     到了再翻黑 —— 整屏闪一下。手机上（网络慢 + 深色模式）尤其明显。
+     注意这里只能放"首帧就要对"的东西，别的样式不要往这塞。 */
+  html { background: #f9f8f8; color-scheme: light; }
+  html[data-theme="dark"] { background: #0f1115; color-scheme: dark; }
+</style>
+
+<link rel="stylesheet" href="css/fonts.css?v=2.12.0">
+<link rel="stylesheet" href="css/style.css?v=2.12.0">
 
 <script>
   /* 首屏前定主题，避免明暗切换时闪一下 */
@@ -46,6 +56,11 @@
           : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
       document.documentElement.setAttribute('data-theme', theme);
       if (fromUrl === 'light' || fromUrl === 'dark') localStorage.setItem('oing:theme', theme);
+      // 诊断开关：必须在首屏前生效。放在 main.js 里会在首次绘制后才加属性，
+      // 那次属性变更自己就会重绘一遍，把诊断结果搞脏。
+      if (/[?&]noglass=1/.test(location.search)) {
+        document.documentElement.setAttribute('data-noglass', '');
+      }
     } catch (e) {}
   })();
 </script>
@@ -293,12 +308,12 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-<script src="js/config.js?v=2.11.0"></script>
-<script src="js/i18n.js?v=2.11.0"></script>
-<script src="js/flowfield.js?v=2.11.0"></script>
-<script src="js/header.js?v=2.11.0"></script>
-<script src="js/qa.js?v=2.11.0"></script>
-<script src="js/ask.js?v=2.11.0"></script>
-<script src="js/main.js?v=2.11.0"></script>
+<script src="js/config.js?v=2.12.0"></script>
+<script src="js/i18n.js?v=2.12.0"></script>
+<script src="js/flowfield.js?v=2.12.0"></script>
+<script src="js/header.js?v=2.12.0"></script>
+<script src="js/qa.js?v=2.12.0"></script>
+<script src="js/ask.js?v=2.12.0"></script>
+<script src="js/main.js?v=2.12.0"></script>
 </body>
 </html>

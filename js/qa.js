@@ -16,8 +16,8 @@ window.OING_QA = [
     id: 'what',
     keys: ['是什么', '做什么的', '干什么的', '什么东西', '这是啥', '介绍一下', '什么产品', '什么东东',
            'what is', 'what does', 'about this', 'introduce'],
-    zh: 'Oing 是一个仍在开发中的通用智能助手。本站为其官方页面，目前仅用于说明规划中的能力；产品本身尚不可用。',
-    en: 'Oing is a general-purpose AI assistant that is still in development. This site is its official homepage and currently only describes the planned capabilities; the product itself is not yet usable.',
+    zh: 'Oing 是一个仍在开发中的通用工具。本站为其官方页面，目前仅用于说明开发进展；产品本身尚不可用。',
+    en: 'Oing is a general-purpose tool that is still in development. This site is its official homepage and currently only describes progress; the product itself is not yet usable.',
   },
   {
     id: 'when',

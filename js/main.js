@@ -11,14 +11,6 @@
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 
-  /*
-   * 诊断开关：?noglass=1 关掉全站背景模糊。
-   * 用途：手机上页面闪烁时，用来分辨"是不是磨砂层造成的"——
-   * 加了参数还闪，说明不是 backdrop-filter，要往别处查（见 js/flowfield.js 的 ?noanim=1）。
-   */
-  if (/[?&]noglass=1/.test(location.search)) {
-    document.documentElement.setAttribute('data-noglass', '');
-  }
 
   function store(k, v) {
     try {

@@ -12,7 +12,7 @@
 window.OING_I18N = {
   zh: {
     'meta.title': 'Oing — 让智能更近一步',
-    'meta.description': 'Oing 是一个通用智能助手，目前仍在开发中。本站为其官方页面，用于说明规划中的能力与开发进展。',
+    'meta.description': 'Oing 是一个通用工具，目前仍在开发中。本站为其官方页面，用于说明开发进展。',
 
     'a11y.skip': '跳到主要内容',
 
@@ -107,7 +107,7 @@ window.OING_I18N = {
 
   en: {
     'meta.title': 'Oing — Closer to intelligence',
-    'meta.description': 'Oing is a general-purpose AI assistant that is still in development. This site is its official homepage, covering the planned capabilities and progress.',
+    'meta.description': 'Oing is a general-purpose tool that is still in development. This site is its official homepage, covering progress.',
 
     'a11y.skip': 'Skip to main content',
 

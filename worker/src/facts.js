@@ -2,7 +2,7 @@
 /* eslint-disable */
 
 export const FACTS = [
-  { id: "what", zh: "Oing 是一个仍在开发中的通用智能助手。本站为其官方页面，目前仅用于说明规划中的能力；产品本身尚不可用。", en: "Oing is a general-purpose AI assistant that is still in development. This site is its official homepage and currently only describes the planned capabilities; the product itself is not yet usable." },
+  { id: "what", zh: "Oing 是一个仍在开发中的通用工具。本站为其官方页面，目前仅用于说明开发进展；产品本身尚不可用。", en: "Oing is a general-purpose tool that is still in development. This site is its official homepage and currently only describes progress; the product itself is not yet usable." },
   { id: "when", zh: "目前没有确定的时间表，也不会在能够兑现之前给出日期。一旦确定，将发布在首页「动态」栏。", en: "There is no confirmed schedule yet, and no dates will be given before they can be met. Once there is one, it will be posted under Updates on the homepage." },
   { id: "usable", zh: "不能。目前站内没有任何可实际使用的功能；该输入框仅回答关于本站的问题。", en: "No. Nothing on this site is usable yet; this input box only answers questions about the site itself." },
   { id: "contact", zh: "请发送邮件至 official@astras.cc，这是目前唯一的联系方式。", en: "Email official@astras.cc — this is currently the only contact channel." },
@@ -25,4 +25,4 @@ export const FALLBACK = {
 };
 
 /** 事实库指纹 —— worker 在 /api/health 里报出来，供线上验收比对 */
-export const FACTS_HASH = "02255f9e";
+export const FACTS_HASH = "04a6cbf5";
