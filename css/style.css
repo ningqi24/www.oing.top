@@ -10,7 +10,7 @@
    目录
      1 设计令牌        2 基础重置        3 排版刻度
      4 按钮            5 页头            6 首屏（渐变 + 流场画布 + 磨砂输入卡）
-     7 编辑式列表      8 页脚            9 提示条
+     7 项目卡片        8 页脚            9 提示条
     10 动效           11 响应式         12 打印与无障碍
    ========================================================================== */
 
@@ -519,19 +519,38 @@ html[lang="en"] .slogan {
 .section-head .eyebrow { padding-top: 6px; }
 .section-note { margin-top: 10px; font-size: 14.5px; color: var(--text-description); }
 
-.index-list { border-top: 1px solid var(--border-divider); }
-.index-row {
-  display: grid; grid-template-columns: 56px 200px 1fr; gap: var(--s5);
-  align-items: baseline;
-  padding: var(--s5) 0;
-  border-bottom: 1px solid var(--border-divider);
+/* 项目推广卡片（2026-10 替代原来的「能力」清单）
+   整张卡是一个 <a>：只有一个点击目标，比"卡片里再放一个链接"更好点也好读 */
+.proj-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s4); }
+.proj-card {
+  display: flex; flex-direction: column; gap: 10px; height: 100%;
+  padding: var(--s5);
+  background: var(--bg-solid);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-card);
+  transition: border-color .2s var(--ease), transform .2s var(--ease), box-shadow .2s var(--ease);
 }
-.index-row .idx {
-  font-family: var(--font-mono); font-size: 12px;
-  color: var(--text-placeholder); font-variant-numeric: tabular-nums;
+.proj-card:hover {
+  border-color: rgba(var(--brand-rgb), .5);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-float);
 }
-.index-row h3 { font-size: 16px; font-weight: 500; color: var(--text-primary); }
-.index-row p { font-size: 15px; color: var(--text-description); max-width: 62ch; }
+.proj-head { display: flex; align-items: center; gap: 10px; }
+.proj-name { font-size: 17px; font-weight: 600; color: var(--text-title); }
+.proj-tag {
+  padding: 2px 9px;
+  border: 1px solid var(--border-divider); border-radius: var(--r-pill);
+  font-size: 11.5px; color: var(--text-placeholder);
+}
+.proj-desc { font-size: 14px; line-height: 1.75; color: var(--text-description); }
+.proj-go {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-top: auto; padding-top: 8px;
+  font-family: var(--font-mono); font-size: 13px;
+  color: var(--brand-ink);
+}
+.proj-arrow { width: 15px; height: 15px; stroke: currentColor; transition: transform .2s var(--ease); }
+.proj-card:hover .proj-arrow { transform: translateX(3px); }
 
 .news-row {
   display: grid; grid-template-columns: 120px 1fr auto; gap: var(--s5);
@@ -640,8 +659,7 @@ html[lang="en"] .slogan {
 
 @media (max-width: 900px) {
   .section-head { grid-template-columns: 1fr; gap: var(--s4); }
-  .index-row { grid-template-columns: 40px 1fr; }
-  .index-row p { grid-column: 2; }
+  .proj-list { grid-template-columns: 1fr; }
   .news-row { grid-template-columns: 1fr; gap: var(--s2); }
   .news-row .news-arrow { display: none; }
   .footer-top { flex-direction: column; }
@@ -689,7 +707,6 @@ html[lang="en"] .slogan {
   .slogan { font-size: 26px; letter-spacing: .22em; margin-right: -.22em; }
   .hero-actions { width: 100%; }
   .hero-actions .btn { flex: 1 1 auto; }
-  .index-row { grid-template-columns: 32px 1fr; gap: var(--s3); }
 }
 
 /* ------------------------------------------------- 12 打印与无障碍 */

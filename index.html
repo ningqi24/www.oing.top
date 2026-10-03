@@ -30,8 +30,8 @@
 <link rel="preload" href="assets/fonts/dm-sans-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/dm-sans-500.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/montserrat-500.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/fonts.css?v=2.9.0">
-<link rel="stylesheet" href="css/style.css?v=2.9.0">
+<link rel="stylesheet" href="css/fonts.css?v=2.10.1">
+<link rel="stylesheet" href="css/style.css?v=2.10.1">
 
 <script>
   /* 首屏前定主题，避免明暗切换时闪一下 */
@@ -67,7 +67,7 @@
     </a>
 
     <nav class="nav" id="primary-nav" aria-label="主导航">
-      <a href="#capability" data-i18n="nav.capability">能力</a>
+      <a href="#projects" data-i18n="nav.projects">项目</a>
       <a href="#news" data-i18n="nav.news">动态</a>
       <a href="legal.html" data-i18n="nav.legal">法务</a>
     </nav>
@@ -167,23 +167,37 @@
     </div>
   </section>
 
-  <section class="section" id="capability">
+  <section class="section" id="projects">
     <div class="shell">
       <div class="section-head reveal">
-        <p class="eyebrow" data-i18n="cap.eyebrow">Capabilities</p>
+        <p class="eyebrow" data-i18n="proj.eyebrow">Projects</p>
         <div>
-          <h2 data-i18n="cap.title">能力</h2>
-          <p class="section-note" data-i18n="cap.note">以下能力均在开发中，尚未开放使用。</p>
+          <h2 data-i18n="proj.title">项目</h2>
+          <p class="section-note" data-i18n="proj.note">同一个维护者的另外两个站点，现在都可以直接使用。</p>
         </div>
       </div>
 
-      <ul class="index-list">
-        <li class="index-row reveal"><span class="idx">01</span><h3 data-i18n="cap.1.t">深度推理</h3><p data-i18n="cap.1.d">复杂问题上先展开推理再给出结论，推理过程可见。</p></li>
-        <li class="index-row reveal"><span class="idx">02</span><h3 data-i18n="cap.2.t">联网搜索</h3><p data-i18n="cap.2.d">需要最新信息时自动检索，并附来源。</p></li>
-        <li class="index-row reveal"><span class="idx">03</span><h3 data-i18n="cap.3.t">超长上下文</h3><p data-i18n="cap.3.d">长文档可一次读入，无需分段提交。</p></li>
-        <li class="index-row reveal"><span class="idx">04</span><h3 data-i18n="cap.4.t">代码与工具</h3><p data-i18n="cap.4.d">可读取完整代码仓库，并调用函数与外部工具。</p></li>
-        <li class="index-row reveal"><span class="idx">05</span><h3 data-i18n="cap.5.t">多模态理解</h3><p data-i18n="cap.5.d">可读取图片、表格与扫描件。</p></li>
-        <li class="index-row reveal"><span class="idx">06</span><h3 data-i18n="cap.6.t">可控与安全</h3><p data-i18n="cap.6.d">数据用途与权限边界明确，授权可随时撤回。</p></li>
+      <ul class="proj-list">
+        <li class="reveal">
+          <a class="proj-card" href="https://www.astras.cc/" data-link="astras" rel="noopener">
+            <span class="proj-head">
+              <span class="proj-name">Astras.CC</span>
+              <span class="proj-tag" data-i18n="proj.astras.tag">工具导航</span>
+            </span>
+            <span class="proj-desc" data-i18n="proj.astras.d">个人维护的精选工具导航站。每条都人工实测、附点评与实测时间，不做机器采集，每季度复核一次。</span>
+            <span class="proj-go">astras.cc<svg class="proj-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M12.5 6l6 6-6 6" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>
+          </a>
+        </li>
+        <li class="reveal">
+          <a class="proj-card" href="https://minichat.astras.cc/" data-link="minichat" rel="noopener">
+            <span class="proj-head">
+              <span class="proj-name">MiniChat</span>
+              <span class="proj-tag" data-i18n="proj.minichat.tag">实时聊天</span>
+            </span>
+            <span class="proj-desc" data-i18n="proj.minichat.d">原生 HTML + Supabase 的轻量实时聊天，无框架依赖。支持实时消息、文件分享与图片压缩，可安装为 PWA 离线使用；开源，MIT 协议。</span>
+            <span class="proj-go">minichat.astras.cc<svg class="proj-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M12.5 6l6 6-6 6" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>
+          </a>
+        </li>
       </ul>
     </div>
   </section>
@@ -201,7 +215,7 @@
             <time datetime="2026-10-02">2026-10-02</time>
             <span>
               <span class="news-title" data-i18n="news.1.t">官网已上线</span>
-              <span class="news-desc" data-i18n="news.1.d">首页、能力说明与法务页面已就绪。</span>
+              <span class="news-desc" data-i18n="news.1.d">首页与法务页面已就绪。</span>
             </span>
           </div>
         </li>
@@ -211,6 +225,15 @@
             <span>
               <span class="news-title" data-i18n="news.2.t">产品开发中</span>
               <span class="news-desc" data-i18n="news.2.d">对话与开放平台尚未开放，后续进展将在此更新。</span>
+            </span>
+          </div>
+        </li>
+        <li class="reveal">
+          <div class="news-row is-static">
+            <time datetime="2026-10-03">2026-10-03</time>
+            <span>
+              <span class="news-title" data-i18n="news.3.t">首页改版</span>
+              <span class="news-desc" data-i18n="news.3.d">移除了尚未确定的能力清单，改为介绍同一维护者的另外两个站点。</span>
             </span>
           </div>
         </li>
@@ -270,12 +293,12 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-<script src="js/config.js?v=2.9.0"></script>
-<script src="js/i18n.js?v=2.9.0"></script>
-<script src="js/flowfield.js?v=2.9.0"></script>
-<script src="js/header.js?v=2.9.0"></script>
-<script src="js/qa.js?v=2.9.0"></script>
-<script src="js/ask.js?v=2.9.0"></script>
-<script src="js/main.js?v=2.9.0"></script>
+<script src="js/config.js?v=2.10.1"></script>
+<script src="js/i18n.js?v=2.10.1"></script>
+<script src="js/flowfield.js?v=2.10.1"></script>
+<script src="js/header.js?v=2.10.1"></script>
+<script src="js/qa.js?v=2.10.1"></script>
+<script src="js/ask.js?v=2.10.1"></script>
+<script src="js/main.js?v=2.10.1"></script>
 </body>
 </html>

@@ -35,9 +35,11 @@ window.OING_CONFIG = {
    * 若将来改为境内托管并完成备案，再补回页脚的备案号元素与渲染逻辑。
    */
 
-  /** 各入口地址。目前只有 github 是真实可用的，页面也只渲染了这一个。 */
+  /** 各入口地址。页面上只渲染这里填了值的入口（留空的不渲染，避免点了没反应）。 */
   links: {
     github: 'https://github.com/ningqi24',  // 真实存在
+    astras: 'https://www.astras.cc/',       // 个人精选工具导航站
+    minichat: 'https://minichat.astras.cc/', // 轻量实时聊天
     chat: '',       // 对话产品，例如 https://chat.oing.top/
     platform: '',   // 开放平台控制台
     docs: '',       // 开发文档

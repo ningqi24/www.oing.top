@@ -82,8 +82,8 @@ window.OING_QA = [
     id: 'capability',
     keys: ['会有什么能力', '有什么功能', '支持什么', '能做什么', '功能', '能力', '特性',
            'features', 'capabilities', 'what can it do', 'supported'],
-    zh: '规划中的能力列于首页「能力」一节：深度推理、联网搜索、超长上下文、代码与工具、多模态理解、可控与安全。以上均处于开发中，目前均不可用。',
-    en: 'The planned capabilities are listed under Capabilities on the homepage: deep reasoning, web search, long context, code & tools, multimodal input, control & safety. All are in development and none are available yet.',
+    zh: '产品仍在开发中，功能范围尚未确定，因此本站不列出能力清单。有确定内容后会发布在首页「动态」栏。',
+    en: 'The product is still in development and its feature set is not fixed, so no capability list is published here. Confirmed details will be posted under Updates on the homepage.',
   },
   {
     id: 'language',
