@@ -16,6 +16,31 @@
 
   var reduceQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
+  /*
+   * 小屏只画静态帧，不做动画。
+   *
+   * 原因（实测数据）：画布铺满整个 hero，即便按 DPR 上限 2，手机视口下也是
+   * 780×1450 设备像素、约 40fps 重绘。而画布之上叠着 9 个 backdrop-filter 元素
+   * （输入框那一块就有 358×210，模糊半径 --blur 是 20px）——**画布每动一帧，
+   * 这些磨砂就得把背后的内容重新模糊一遍**。手机 GPU 上这是典型的闪烁成因，
+   * 而且 3 秒里 JS 有 1.05 秒（35% CPU）都花在画布上。
+   *
+   * 静态帧在观感上几乎一样（截图完全一致），但没有了"每帧重新采样背景"的开销。
+   *
+   * 诊断开关（手机上用来分辨闪烁到底是不是画布造成的）：
+   *   ?noanim=1  强制静态        ?anim=1  强制开动画（即使小屏）
+   */
+  var smallQuery = window.matchMedia('(max-width: 760px)');
+  var search = (typeof location !== 'undefined' && location.search) || '';
+  var forceStatic = /[?&]noanim=1/.test(search);
+  var forceAnim = /[?&]anim=1/.test(search);
+
+  function shouldAnimate() {
+    if (forceAnim) return true;
+    if (forceStatic) return false;
+    return !smallQuery.matches;
+  }
+
   function mount(canvas) {
     if (!canvas || !canvas.getContext) return;
     var ctx = canvas.getContext('2d', { alpha: true });
@@ -144,8 +169,11 @@
       seed();
       // 先空跑一段，进去时就已经有成型的气流，而不是从空白慢慢长出来
       ctx.clearRect(0, 0, w, h);
-      for (var i = 0; i < 90; i++) { fade(); stepParticles(true); }
-      if (!reduceQuery.matches && visible) start(); else stop();
+      // 静态帧多跑一段，画面更饱满（只算一次）；动画模式照旧 90 步暖机
+      var warm = shouldAnimate() ? 90 : 220;
+      for (var i = 0; i < warm; i++) { fade(); stepParticles(true); }
+      // 小屏只留这张静态帧；只有该动的时候才启动 rAF
+      if (shouldAnimate() && !reduceQuery.matches && visible) start(); else stop();
     }
 
     var resizeTimer = 0;
@@ -156,18 +184,22 @@
 
     document.addEventListener('visibilitychange', function () {
       if (document.hidden) stop();
-      else if (visible && !reduceQuery.matches) start();
+      else if (visible && shouldAnimate() && !reduceQuery.matches) start();
     });
 
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (entries) {
         visible = entries[0].isIntersecting;
-        if (visible && !reduceQuery.matches) start(); else stop();
+        if (visible && shouldAnimate() && !reduceQuery.matches) start(); else stop();
       }, { threshold: 0 }).observe(canvas);
     }
 
     if (reduceQuery.addEventListener) {
       reduceQuery.addEventListener('change', function () { resize(); });
+    }
+    // 旋屏或跨过断点时重新判断该不该动
+    if (smallQuery.addEventListener) {
+      smallQuery.addEventListener('change', function () { resize(); });
     }
 
     // 字体/主题变化会改 --brand-rgb，重绘一次静态帧
