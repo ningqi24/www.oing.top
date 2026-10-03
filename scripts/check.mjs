@@ -36,7 +36,7 @@ const HTML_FILES = ['index.html', 'legal.html', '404.html'];
 // 两者都不可用时退化为"剥掉 import/export 再解析"，保证脚本本身不会因为
 // 环境限制而误报。
 function collectJs() {
-  const plain = ['js/config.js', 'js/i18n.js', 'js/main.js', 'js/flowfield.js', 'js/header.js'];
+  const plain = ['js/config.js', 'js/i18n.js', 'js/main.js', 'js/flowfield.js', 'js/header.js', 'js/qa.js', 'js/ask.js'];
   const modules = ['scripts/gen-icons.mjs', 'scripts/serve.mjs', 'scripts/check.mjs'];
 
   for (const f of plain) {
@@ -128,8 +128,30 @@ for (const f of HTML_FILES) {
     if (m[1] !== VERSION) fail(f + ' 里的资源版本号 ' + m[1] + ' 与 package.json 的 ' + VERSION + ' 不一致');
   }
 }
-for (const f of ['css/style.css', 'css/fonts.css', 'js/main.js', 'js/flowfield.js', 'js/header.js']) {
+for (const f of ['css/style.css', 'css/fonts.css', 'js/main.js', 'js/flowfield.js', 'js/header.js', 'js/qa.js', 'js/ask.js']) {
   if (!exists(f)) fail('缺少 ' + f);
+}
+
+/* 站内问答：脚本、界面、样式三者必须齐全，事实库不能为空 */
+const homeHtml = read('index.html');
+if (homeHtml.includes('data-ask')) {
+  if (!homeHtml.includes('id="answer"')) fail('index.html 缺少 #answer 回答容器');
+  if (!homeHtml.includes('js/qa.js')) fail('index.html 没有加载 js/qa.js');
+  if (!homeHtml.includes('js/ask.js')) fail('index.html 没有加载 js/ask.js');
+  if (!/\.answer__a/.test(read('css/style.css'))) fail('css/style.css 里缺少 .answer__a 规则');
+  var qaSandbox = { window: {} };
+  vm.createContext(qaSandbox);
+  vm.runInContext(read('js/qa.js'), qaSandbox);
+  var entries = qaSandbox.window.OING_QA || [];
+  if (entries.length < 5) fail('js/qa.js 的事实库条目太少（' + entries.length + ' 条）');
+  for (var qi = 0; qi < entries.length; qi++) {
+    var e = entries[qi];
+    if (!e.id) fail('js/qa.js 第 ' + (qi + 1) + ' 条缺少 id');
+    if (!e.zh || !e.zh.trim()) fail('js/qa.js 条目「' + e.id + '」缺少中文答案');
+    if (!e.en || !e.en.trim()) fail('js/qa.js 条目「' + e.id + '」缺少英文答案');
+    if (!e.keys || !e.keys.length) fail('js/qa.js 条目「' + e.id + '」没有关键词');
+  }
+  if (!qaSandbox.window.OING_QA_FALLBACK) fail('js/qa.js 缺少 OING_QA_FALLBACK');
 }
 
 /* 悬浮胶囊页头：结构、样式、脚本三者必须齐全 */
@@ -222,24 +244,47 @@ for (const f of HTML_FILES) {
 if (!CFG.site || !/^https:\/\//.test(CFG.site)) fail('js/config.js 的 site 必须是 https 地址');
 
 /* ----------------------------------- 7 不得带入第三方品牌词 / 备案号 */
+/*
+ * 规则设计（为什么不是简单地"出现即失败"）：
+ * 站内问答**必须**能回答「你们和 DeepSeek 什么关系」—— 答案里必然要指名，
+ * 而且要明确写出"无关联、未获授权"。所以正确的规则不是禁止出现，而是：
+ *
+ *   1. 只允许在**文案层**（js/qa.js、js/i18n.js）指名，HTML / CSS / 其它 JS 里出现一律失败；
+ *   2. 一旦文案层指名了，整个项目就必须同时存在**中英双语**的"无关联"声明；
+ *   3. 任何一行只要带了免责声明，任何文件里都放行。
+ *
+ * 效果：可以把关系说清楚，但不能拿别人的商标当卖点。
+ */
+const BRAND_COPY_FILES = ['js/qa.js', 'js/i18n.js'];
+const BRAND_LINE_OK = /无关联|未获授权|not affiliated|endorsed by or authorised|不代表任何第三方/;
 const BANNED = [
   { re: /deepseek/i, why: '第三方品牌名' },
   { re: /深度求索/, why: '第三方公司名' },
   { re: /浙ICP备|浙B2-|浙公网安备/, why: '第三方备案号' },
   { re: /chat\.deepseek\.com|platform\.deepseek\.com|api-docs\.deepseek\.com/, why: '第三方业务链接' },
 ];
-const SCAN = ['index.html', 'legal.html', '404.html', 'css/style.css', 'js/main.js', 'js/i18n.js', 'js/config.js', 'README.md'];
+const SCAN = ['index.html', 'legal.html', '404.html', 'css/style.css', 'js/main.js', 'js/config.js', 'js/qa.js', 'js/i18n.js', 'README.md'];
 for (const f of SCAN) {
   if (!exists(f)) continue;
-  const src = read(f);
-  for (const rule of BANNED) {
-    const hit = rule.re.exec(src);
-    if (hit) {
-      // README 允许在"版权边界"一节里说明，但不允许出现在页面代码中
-      if (f === 'README.md') continue;
-      fail(f + ' 出现' + rule.why + '：' + hit[0]);
+  if (f === 'README.md') continue;             // README 要用来说清版权边界
+  if (BRAND_COPY_FILES.includes(f)) continue;  // 文案层见下面的单独校验
+  read(f).split('\n').forEach((text, i) => {
+    if (BRAND_LINE_OK.test(text)) return;      // 带免责声明的行放行
+    // HTML 里带 data-i18n 的行，文字归属文案层（本脚本还会校验兜底文本与词条完全一致），
+    // 所以文案层被允许说的话，这里也允许
+    if (/\sdata-i18n(-[a-z]+)?="/.test(text)) return;
+    for (const rule of BANNED) {
+      const hit = rule.re.exec(text);
+      if (hit) fail(f + ' 第 ' + (i + 1) + ' 行出现' + rule.why + '：' + text.trim().slice(0, 70));
     }
-  }
+  });
+}
+
+// 文案层指名了第三方，就必须同时写明中英双语的「无关联」声明
+const brandCopy = BRAND_COPY_FILES.filter(exists).map(read).join('\n');
+if (/deepseek|深度求索/i.test(brandCopy)) {
+  if (!/无关联/.test(brandCopy)) fail('文案里提到了第三方品牌，但没有写明「无关联」的中文声明');
+  if (!/not affiliated/i.test(brandCopy)) fail('文案里提到了第三方品牌，但没有写明 not affiliated 的英文声明');
 }
 
 /* --------------------------------------------------------------- 汇总输出 */

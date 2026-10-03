@@ -136,12 +136,14 @@
   if (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
+      var q = textarea ? textarea.value.trim() : '';
+      // 配了真实对话服务就跳过去；否则用站内问答回答
       if (LINKS.chat) {
-        var q = textarea ? textarea.value.trim() : '';
         var joiner = LINKS.chat.indexOf('?') === -1 ? '?' : '&';
         window.open(LINKS.chat + (q ? joiner + 'q=' + encodeURIComponent(q) : ''), '_blank', 'noopener');
         return;
       }
+      if (window.OingAsk && window.OingAsk.answer(q)) return;
       toast(window.oingT('msg.sent'));
     });
   }

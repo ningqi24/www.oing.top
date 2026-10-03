@@ -423,6 +423,40 @@ html[lang="en"] .slogan {
 
 .composer-bar { display: flex; align-items: center; gap: var(--s2); }
 .composer-note { padding: 0 var(--s3); margin: 6px 0 2px; font-size: 12.5px; color: var(--text-placeholder); }
+
+/* 问答：输入框 + 建议问题 + 回答卡，作为一个整体参与首屏的 40px 间距 */
+.ask-block { display: flex; flex-direction: column; align-items: center; gap: 18px; width: 100%; }
+
+.chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.chip {
+  padding: 7px 15px;
+  border: 1px solid var(--border-default); border-radius: var(--r-pill);
+  background: var(--surface-glass); color: var(--text-description);
+  font-size: 13.5px; white-space: nowrap;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  transition: border-color .18s var(--ease), color .18s var(--ease), transform .18s var(--ease);
+}
+.chip:hover { border-color: var(--brand-400); color: var(--brand-ink); transform: translateY(-1px); }
+
+.answer {
+  width: 100%; max-width: 880px; text-align: left;
+  padding: var(--s5) var(--s6);
+  background: var(--surface-glass);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-card);
+  backdrop-filter: blur(var(--blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(150%);
+  box-shadow: var(--shadow-float);
+}
+.answer.is-miss { border-color: rgba(var(--brand-rgb), .38); }
+.answer__q { font-size: 13px; color: var(--text-placeholder); }
+.answer__you { margin-right: 8px; }
+.answer__a { margin-top: 10px; font-size: 16px; line-height: 1.75; color: var(--text-primary); }
+.answer__foot {
+  margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-subtle);
+  font-size: 13px; color: var(--text-placeholder);
+}
+.answer__foot a { margin-left: 6px; color: var(--brand-ink); font-weight: 500; }
 .composer-tools { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
 
 .pill-toggle {
