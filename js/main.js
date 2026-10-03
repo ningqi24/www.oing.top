@@ -185,6 +185,43 @@
     });
   }
 
+  /* 复制到剪贴板。Clipboard API 在页面没有焦点、或非安全上下文时会直接拒绝，
+     所以失败必须回退到 execCommand，不能静默吞掉。 */
+  function copyText(text) {
+    function legacy() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '-1000px';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      return ok;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        navigator.clipboard.writeText(text).catch(legacy);
+        return;
+      } catch (e) { /* 落到下面的兜底 */ }
+    }
+    legacy();
+  }
+
+  /* 很多机器（尤其是没装邮件客户端的 Windows）根本没有 mailto: 处理程序，
+     点下去毫无反应。所以点击时顺手把地址复制到剪贴板并给个提示 ——
+     有邮件客户端的话照常打开，没有的话用户至少拿到了地址。 */
+  $$('[data-copy-email]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      if (!CFG.email) return;
+      copyText(CFG.email);
+      toast(window.oingT('msg.emailCopied'));
+    });
+  });
+
   var copyright = $('#copyright');
   if (copyright) copyright.textContent = '© ' + new Date().getFullYear() + ' ' + (CFG.brand || 'Oing');
 

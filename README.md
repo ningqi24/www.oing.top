@@ -224,6 +224,16 @@ git commit -m "ci: 启用自检工作流" && git push
 - `legal.html` 的三节（服务条款 / 隐私政策 / 免责声明）已经是**按本站实际情况**写的真条款，
   不是模板占位文本。如果以后接入统计、登录或任何第三方脚本，**必须回来同步隐私政策**。
 
+**联系方式不会「点了没反应」**：很多机器（尤其是没装邮件客户端的 Windows）根本没有注册
+`mailto:` 处理程序，点下去毫无动静。所以联系入口除了 `mailto:` 之外还带 `data-copy-email`，
+点击时会顺手把地址复制到剪贴板并弹出提示 —— 有邮件客户端就照常打开，没有的话用户至少拿到了地址。
+
+> ⚠️ **Cloudflare 的「电子邮件混淆」**（Scrape Shield）会把 HTML 里的 `mailto:` 改写成
+> `/cdn-cgi/l/email-protection#...`，靠它自己注入的脚本在运行时还原。
+> 我们的 `main.js` 本来就会用 `config.email` 重设 href，所以**运行时是好的**，
+> 但无脚本环境下源码里的链接是坏的。建议去 Cloudflare 控制台 →
+> Scrape Shield → Email Address Obfuscation **关掉它**（这个地址本来就是公开的，混淆没有意义）。
+
 **联系邮箱**：`official@astras.cc`，在 `config.js` 的 `email` 里。
 页面上不写死地址 —— 所有联系入口都带 `data-email` 属性，由 `main.js` 统一注入
 `href`；法务页那个还要显示地址的，额外加 `data-email-text`。

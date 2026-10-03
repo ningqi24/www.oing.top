@@ -64,6 +64,7 @@ window.OING_I18N = {
     'msg.notConfigured': '这个入口还没有配置，暂时用不了。',
     'msg.sent': '对话功能还在开发中，目前还不能用。',
     'msg.attached': '附件功能还在开发中，目前还不能用。',
+    'msg.emailCopied': '邮箱已复制，粘贴到你的邮件里即可。',
     'msg.theme.light': '已切换为浅色',
     'msg.theme.dark': '已切换为深色',
 
@@ -151,6 +152,7 @@ window.OING_I18N = {
     'msg.notConfigured': 'This entry is not configured yet and does not work.',
     'msg.sent': 'Chat is still in development and does not work yet.',
     'msg.attached': 'File upload is still in development and does not work yet.',
+    'msg.emailCopied': 'Email copied — paste it into your mail client.',
     'msg.theme.light': 'Switched to light mode',
     'msg.theme.dark': 'Switched to dark mode',
 
