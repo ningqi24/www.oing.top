@@ -13,7 +13,8 @@
  *   400 { error: 'empty' }
  *   404 { error: 'not_found' }
  *   405 { error: 'method_not_allowed' }
- *   429 { error: 'rate_limited', scope }
+ *   429 { error: 'rate_limited', scope } 本站自身限流
+ *   429 { error: 'quota' }              上游免费额度当天用完（不是故障）
  *   500 { error: 'internal' }        未预期的异常（已打日志）
  *   502 { error: 'upstream', fallback } 上游全部失败，附带本地兜底文案
  *   503 { error: 'not_configured' }  没配 OPENROUTER_API_KEY
@@ -161,6 +162,7 @@ async function handle(request, env) {
   const startedAt = Date.now();
   let attempt = 0;
   let lastStatus = 0;
+  let quotaHit = false;
 
   // 免费模型经常 429 或临时下线，所以按顺序往下试。
   // 每次尝试都打日志 —— 线上延迟的方差很大，只能靠 wrangler tail 看清时间花在哪。
@@ -193,7 +195,15 @@ async function handle(request, env) {
 
     lastStatus = res.status;
     if (!res.ok) {
-      console.log(JSON.stringify({ ev: 'http-fail', model, status: res.status, ms: Date.now() - t0, attempt }));
+      // 免费层每天只有 50 次（free-models-per-day）。额度耗尽时再试别的模型毫无意义 ——
+      // 直接停下，并把「是额度问题」和「是模型问题」区分开告诉前端，
+      // 否则用户只会看到一句笼统的兜底，以为功能坏了。
+      let detail = '';
+      try { detail = (await res.text()).slice(0, 300); } catch (e) { /* 读不到就算了 */ }
+      const isQuota = /free-models-per-day|openrouter_free_tier_daily/.test(detail) ||
+        res.headers.get('x-ratelimit-remaining') === '0';
+      console.log(JSON.stringify({ ev: 'http-fail', model, status: res.status, ms: Date.now() - t0, attempt, quota: isQuota }));
+      if (isQuota) { quotaHit = true; break; }
       continue;
     }
 
@@ -220,6 +230,12 @@ async function handle(request, env) {
     console.log(JSON.stringify({ ev: 'ok', model, ms: Date.now() - t0, attempt, total: Date.now() - startedAt }));
     await setWorking(model);
     return json({ text: String(text).trim(), model });
+  }
+
+  // 免费额度用完了：这不是故障，是额度问题，单独告诉前端，好让用户知道原因
+  if (quotaHit) {
+    console.log(JSON.stringify({ ev: 'quota-exhausted', models: attempt, total: Date.now() - startedAt }));
+    return json({ error: 'quota' }, 429);
   }
 
   // 全部失败：把本地兜底文案还回去，让前端至少给出一个诚实的回答

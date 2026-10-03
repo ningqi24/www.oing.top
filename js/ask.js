@@ -94,7 +94,7 @@
 
   /* ------------------------------------------------------------ 远端调用 */
 
-  /** 返回 Promise<string|null>：成功给文本，失败给 null（由调用方回退） */
+  /** 返回 Promise<{text}|{quota:true}|null>：成功给文本，额度用完单独标记，其余给 null（由调用方回退） */
   function remoteAsk(query) {
     if (!ENDPOINT || typeof fetch !== 'function') return Promise.resolve(null);
     var ctl = typeof AbortController === 'function' ? new AbortController() : null;
@@ -108,9 +108,12 @@
       clearTimeout(timer);
       return res.json().catch(function () { return null; });
     }).then(function (data) {
-      if (data && typeof data.text === 'string' && data.text.trim()) return data.text.trim();
+      // 上游免费额度当天用完（每天只有 50 次）。这不是故障，
+      // 要如实告诉用户原因，否则他会以为功能坏了。
+      if (data && data.error === 'quota') return { quota: true };
+      if (data && typeof data.text === 'string' && data.text.trim()) return { text: data.text.trim() };
       // 后端明确说上游全挂了：它会把本地兜底文案一起带回来
-      if (data && typeof data.fallback === 'string' && data.fallback.trim()) return data.fallback.trim();
+      if (data && typeof data.fallback === 'string' && data.fallback.trim()) return { text: data.fallback.trim() };
       return null;
     }).catch(function () {
       clearTimeout(timer);
@@ -131,8 +134,8 @@
     els.answer.classList.toggle('is-miss', !!state.miss);
     els.answer.classList.toggle('is-pending', !!state.pending);
     if (els.src) {
-      els.src.textContent = state.remote ? t('ask.remoteSrc') : '';
-      els.src.hidden = !state.remote;
+      els.src.textContent = state.src || (state.remote ? t('ask.remoteSrc') : '');
+      els.src.hidden = !els.src.textContent;
     }
     if (els.answer.scrollIntoView) {
       try { els.answer.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {}
@@ -160,8 +163,14 @@
       render(text, { text: t('ask.thinking'), miss: false, pending: true, remote: false });
       remoteAsk(text).then(function (out) {
         if (mine !== seq) return;                       // 期间又问了别的，丢弃这次结果
-        if (out) render(text, { text: out, miss: false, pending: false, remote: true });
-        else render(text, { text: local.text, miss: true, pending: false, remote: false });
+        if (out && out.text) {
+          render(text, { text: out.text, miss: false, pending: false, remote: true });
+        } else if (out && out.quota) {
+          // 额度用完：给本地兜底，并说明原因
+          render(text, { text: local.text, miss: true, pending: false, remote: false, src: t('ask.quotaNote') });
+        } else {
+          render(text, { text: local.text, miss: true, pending: false, remote: false });
+        }
       });
     }
     return true;
