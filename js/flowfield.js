@@ -10,6 +10,7 @@
  *   · 按视口面积决定粒子数；DPR 上限 2，避免高分屏上过度绘制
  *   · 遵循 prefers-reduced-motion：只画一帧静态的"暖机"结果，之后完全不动
  *   · 离开视口或切到后台时暂停，回来再续，不空转烧电
+ *   · **触屏设备与小窗口根本不创建画布** —— 见 shouldMount() 的说明
  */
 (function () {
   'use strict';
@@ -31,14 +32,32 @@
    *   ?noanim=1  强制静态        ?anim=1  强制开动画（即使小屏）
    */
   var smallQuery = window.matchMedia('(max-width: 760px)');
+  // 触屏设备（手机 / 平板）与小窗口：不创建画布。见 shouldMount()
+  var touchQuery = window.matchMedia('(hover: none) and (pointer: coarse)');
   var search = (typeof location !== 'undefined' && location.search) || '';
   var forceStatic = /[?&]noanim=1/.test(search);
   var forceAnim = /[?&]anim=1/.test(search);
+  var forceCanvas = /[?&]canvas=1/.test(search);
 
   function shouldAnimate() {
     if (forceAnim) return true;
     if (forceStatic) return false;
     return !smallQuery.matches;
+  }
+
+  /*
+   * 要不要创建画布。
+   *
+   * 2026-10 真机定论：Android Chrome / app 内置浏览器上**整屏持续闪烁**，
+   * 用户加 ?nocanvas=1（把画布整个移除）后消失。所以问题在"这块大透明画布被提升为
+   * 独立合成图层"本身，与动画无关 —— 之前调成静态帧 + 关掉磨砂都没用，方向是错的。
+   *
+   * 结论：触屏设备与小窗口不创建画布，只保留 CSS 渐变。桌面端不受影响。
+   * 想在手机上验证画布行为时加 ?canvas=1 强制创建。
+   */
+  function shouldMount() {
+    if (forceCanvas) return true;
+    return !smallQuery.matches && !touchQuery.matches;
   }
 
   function mount(canvas) {
@@ -234,14 +253,13 @@
 
   function boot() {
     var canvas = document.querySelector('.hero-canvas');
-    // 诊断开关：?nocanvas=1 把画布**整个移除**。
-    // 之前只有 ?noanim=1（停动画、画布还在），测不出"这个合成图层本身"有没有关系 ——
-    // 一块 780×1450 的透明 canvas 在 Android 上被提升为独立图层时可能引发整屏闪烁。
-    if (canvas && /[?&]nocanvas=1/.test(search)) {
+    if (!canvas) return;
+    // 不该创建的设备：把元素直接去掉，连图层都不留
+    if (!shouldMount()) {
       canvas.parentNode.removeChild(canvas);
       return;
     }
-    if (canvas) mount(canvas);
+    mount(canvas);
   }
 
   window.OingFlowField = { mount: mount, boot: boot };
