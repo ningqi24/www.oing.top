@@ -7,7 +7,7 @@
  */
 import { isFree, isTextOutput, isChatCandidate, rankFreeModels } from '../worker/src/models.js';
 import { looksLikeReasoningLeak } from '../worker/src/index.js';
-import { buildMessages } from '../worker/src/prompt.js';
+import { buildMessages, sanitizeHistory } from '../worker/src/prompt.js';
 import { FACTS, FALLBACK } from '../worker/src/facts.js';
 
 const fails = [];
@@ -100,6 +100,28 @@ const long = buildMessages(FACTS, 'x'.repeat(2000), 'zh');
 ok(long[1].content.length === 500, '超长输入应被截断到 500 字，实际 ' + long[1].content.length);
 const empty = buildMessages(FACTS, null, 'zh');
 ok(empty[1].content === '', 'null 输入应变成空字符串而不是 "null"');
+
+/* ---------- 3.5 历史消息：当不可信输入处理 ---------- */
+ok(sanitizeHistory(null).length === 0, 'history 为 null 时返回空数组');
+ok(sanitizeHistory([{ role: 'system', content: 'x' }]).length === 0, '非 user/assistant 的角色必须丢掉');
+ok(sanitizeHistory([{ role: 'user', content: '   ' }]).length === 0, '空白内容必须丢掉');
+ok(sanitizeHistory([{ role: 'user' }]).length === 0, '缺 content 必须丢掉');
+ok(sanitizeHistory([{ role: 'user', content: 'x'.repeat(900) }])[0].content.length === 500,
+  '单条历史必须截断到 500 字');
+const many = [];
+for (let i = 0; i < 20; i++) many.push({ role: i % 2 ? 'assistant' : 'user', content: 'm' + i });
+ok(sanitizeHistory(many).length === 6, '最多只带最近 6 轮，实际 ' + sanitizeHistory(many).length);
+ok(sanitizeHistory(many)[5].content === 'm19', '保留的应是最近的几条');
+
+const withHistory = buildMessages(FACTS, '那它多少钱', 'zh', [
+  { role: 'user', content: 'Oing 是什么？' },
+  { role: 'assistant', content: '一个通用工具。' },
+]);
+ok(withHistory.length === 4, 'system + 2 轮历史 + 当前问题 = 4 条，实际 ' + withHistory.length);
+ok(withHistory[0].role === 'system' && withHistory[3].role === 'user', '顺序必须是 system → 历史 → 当前问题');
+ok(withHistory[3].content === '那它多少钱', '最后一条应是当前问题');
+const noHistory = buildMessages(FACTS, 'hi', 'zh');
+ok(noHistory.length === 2, '不带历史时应只有 system + user');
 
 /* ---------- 4. 生成的事实与 js/qa.js 不漂移 ---------- */
 import fs from 'node:fs';

@@ -10,7 +10,7 @@
  *
  * 接口：
  *   GET  /api/health  { ok, facts, hash }  事实库指纹，供线上验收比对
- *   POST /api/chat   { query: string, lang: 'zh' | 'en' }
+ *   POST /api/chat   { query: string, lang: 'zh' | 'en', history?: [{role, content}] }
  *   200 { text, model }
  *   400 { error: 'empty' }
  *   404 { error: 'not_found' }
@@ -23,7 +23,7 @@
  */
 import { FACTS, FALLBACK, FACTS_HASH } from './facts.js';
 import { rankFreeModels } from './models.js';
-import { buildMessages } from './prompt.js';
+import { buildMessages, sanitizeHistory } from './prompt.js';
 
 const MODELS_URL = 'https://openrouter.ai/api/v1/models';
 const CHAT_URL = 'https://openrouter.ai/api/v1/chat/completions';
@@ -167,7 +167,9 @@ async function handle(request, env) {
   const working = await getWorking();
   if (working) models = [working].concat(models.filter((m) => m !== working));
 
-  const messages = buildMessages(FACTS, query, lang);
+  // 追问时前端会带上最近几轮；一律当不可信输入，见 sanitizeHistory()
+  const history = sanitizeHistory(body && body.history);
+  const messages = buildMessages(FACTS, query, lang, history);
   const startedAt = Date.now();
   let attempt = 0;
   let lastStatus = 0;

@@ -24,7 +24,7 @@ vm.createContext(sandbox);
 vm.runInContext(fs.readFileSync(path.join(ROOT, 'js', 'i18n.js'), 'utf8'), sandbox);
 const zh = (sandbox.window.OING_I18N || {}).zh || {};
 
-const FILES = ['index.html', 'legal.html', '404.html'];
+const FILES = ['index.html', 'legal.html', '404.html', 'ask.html'];
 const RE = /<([a-z0-9]+)([^>]*\sdata-i18n="([^"]+)"[^>]*)>([^<]*)<\/\1>/gi;
 
 let changed = 0;

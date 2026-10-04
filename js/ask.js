@@ -94,15 +94,19 @@
 
   /* ------------------------------------------------------------ 远端调用 */
 
-  /** 返回 Promise<{text}|{quota:true}|null>：成功给文本，额度用完单独标记，其余给 null（由调用方回退） */
-  function remoteAsk(query) {
+  /**
+   * 返回 Promise<{text}|{quota:true}|null>：成功给文本，额度用完单独标记，其余给 null（由调用方回退）。
+   * history 可选，形如 [{ role:'user'|'assistant', content }]，用于 /ask 页的连续追问。
+   * 服务端会把它当不可信输入重新过滤（角色白名单、单条 500 字、最多 6 轮）。
+   */
+  function remoteAsk(query, history) {
     if (!ENDPOINT || typeof fetch !== 'function') return Promise.resolve(null);
     var ctl = typeof AbortController === 'function' ? new AbortController() : null;
     var timer = setTimeout(function () { if (ctl) ctl.abort(); }, REMOTE_TIMEOUT);
     return fetch(ENDPOINT, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ query: query, lang: currentLang() }),
+      body: JSON.stringify({ query: query, lang: currentLang(), history: history || [] }),
       signal: ctl ? ctl.signal : undefined,
     }).then(function (res) {
       clearTimeout(timer);
@@ -137,6 +141,8 @@
       els.src.textContent = state.src || (state.remote ? t('ask.remoteSrc') : '');
       els.src.hidden = !els.src.textContent;
     }
+    // 「继续追问」把这个问题带到 /ask，那边保留上下文可以接着问
+    if (els.more) els.more.setAttribute('href', 'ask.html?q=' + encodeURIComponent(query));
     if (els.answer.scrollIntoView) {
       try { els.answer.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {}
     }
@@ -183,6 +189,7 @@
     els.q = document.getElementById('answer-q');
     els.a = document.getElementById('answer-a');
     els.src = document.getElementById('answer-src');
+    els.more = document.getElementById('answer-more');
     els.input = document.getElementById('prompt');
     els.send = document.getElementById('send-btn');
 

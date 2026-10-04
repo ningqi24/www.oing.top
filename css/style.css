@@ -11,7 +11,7 @@
      1 设计令牌        2 基础重置        3 排版刻度
      4 按钮            5 页头            6 首屏（渐变 + 流场画布 + 磨砂输入卡）
      7 项目卡片        8 页脚            9 提示条
-    10 动效           11 响应式         12 打印与无障碍
+    10 动效           10.5 /ask 问答页  11 响应式      12 打印与无障碍
    ========================================================================== */
 
 /* ------------------------------------------------------------- 1 设计令牌 */
@@ -150,6 +150,10 @@
 
 /* ------------------------------------------------------------- 2 基础重置 */
 *, *::before, *::after { box-sizing: border-box; }
+
+/* 作者样式里一旦给元素写了 display，就会盖掉浏览器默认的 [hidden] { display: none }，
+   导致 hidden 属性失效。统一在这里兜住（.chat-empty、#answer-src 都踩过）。 */
+[hidden] { display: none !important; }
 
 html {
   scroll-behavior: smooth;
@@ -622,6 +626,60 @@ html[data-noglass] *, html[data-noglass] *::before, html[data-noglass] *::after 
   .reveal { opacity: 1; transform: none; }
 }
 
+/* ------------------------------------------------------- 10.5 /ask 问答页 */
+.chat-main { padding-top: calc(var(--header-h) + var(--s7)); padding-bottom: 0; }
+.chat-shell { display: flex; flex-direction: column; gap: var(--s6); max-width: 760px; }
+.chat-head h1 { font-size: 26px; font-weight: 600; color: var(--text-title); }
+.chat-head .section-note { margin-top: 8px; }
+
+.chat-list { display: flex; flex-direction: column; gap: var(--s5); }
+.chat-turn { display: flex; flex-direction: column; gap: 6px; max-width: 78%; }
+.chat-turn.is-user { align-self: flex-end; align-items: flex-end; }
+.chat-bubble {
+  padding: 12px 16px;
+  border: 1px solid var(--border-default);
+  border-radius: 18px;
+  background: var(--bg-solid);
+  color: var(--text-primary);
+  font-size: 15px; line-height: 1.7;
+  white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.chat-turn.is-user .chat-bubble {
+  background: rgba(var(--brand-rgb), .1);
+  border-color: rgba(var(--brand-rgb), .22);
+}
+.chat-turn.is-pending .chat-bubble { color: var(--text-placeholder); }
+.chat-meta { font-size: 12.5px; color: var(--text-placeholder); }
+
+.chat-empty { display: flex; flex-direction: column; gap: 12px; }
+.chat-empty > p { font-size: 14px; color: var(--text-description); }
+
+/* 输入区用 sticky 而不是 fixed：fixed 在移动端地址栏伸缩时会跟着跳，
+   而且之前那轮 Android 闪烁的教训是大面积的合成图层要尽量少。 */
+.chat-composer {
+  position: sticky; bottom: 0;
+  margin-top: var(--s8);
+  padding: var(--s3) 0 var(--s5);
+  background: var(--bg-page);
+  border-top: 1px solid var(--border-divider);
+}
+.chat-composer-inner { display: flex; align-items: flex-end; gap: var(--s2); max-width: 760px; }
+.chat-composer textarea {
+  flex: 1 1 auto;
+  min-height: 46px; max-height: 180px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-default); border-radius: 14px;
+  background: var(--bg-solid); color: var(--text-primary);
+  font-family: var(--font-sans); font-size: 15px; line-height: 1.5;
+  resize: none;
+}
+.chat-composer textarea:focus { outline: 0; border-color: rgba(var(--brand-rgb), .5); }
+.chat-composer textarea::placeholder { color: var(--text-placeholder); }
+
+/* 首页回答卡里的「继续追问」入口 */
+.answer__more { margin-top: 10px; font-size: 13.5px; }
+.answer__more a { color: var(--brand-ink); font-weight: 500; }
+
 /* -------------------------------------------------------------- 11 响应式 */
 @media (min-width: 640px) {
   .slogan { font-size: 38px; }
@@ -639,6 +697,7 @@ html[data-noglass] *, html[data-noglass] *::before, html[data-noglass] *::after 
 @media (max-width: 900px) {
   .section-head { grid-template-columns: 1fr; gap: var(--s4); }
   .proj-list { grid-template-columns: 1fr; }
+  .chat-turn { max-width: 92%; }
   .news-row { grid-template-columns: 1fr; gap: var(--s2); }
   .news-row .news-arrow { display: none; }
   .footer-top { flex-direction: column; }

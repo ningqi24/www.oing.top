@@ -27,7 +27,7 @@ const pkgPath = path.join(ROOT, 'package.json');
 const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
 const prev = pkg.version;
 
-const HTML = ['index.html', 'legal.html', '404.html'];
+const HTML = ['index.html', 'legal.html', '404.html', 'ask.html'];
 let htmlHits = 0;
 for (const f of HTML) {
   const p = path.join(ROOT, f);

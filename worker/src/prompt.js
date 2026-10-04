@@ -10,7 +10,23 @@
  * 关键是把两类分开说清楚，而不是简单放宽 —— 放宽的同时必须强调
  * "回答一般问题时不要把它说成是 Oing 的信息"。
  */
-export function buildMessages(facts, query, lang) {
+/**
+ * 历史消息一律当**不可信输入**处理：只保留 user / assistant 两种角色，
+ * 单条截断到 500 字，最多带最近 6 轮，避免把任意内容塞进 system 位置。
+ */
+export function sanitizeHistory(history) {
+  const out = [];
+  const list = Array.isArray(history) ? history.slice(-6) : [];
+  for (const h of list) {
+    if (!h || typeof h.content !== 'string') continue;
+    if (h.role !== 'user' && h.role !== 'assistant') continue;
+    const content = h.content.slice(0, 500).trim();
+    if (content) out.push({ role: h.role, content });
+  }
+  return out;
+}
+
+export function buildMessages(facts, query, lang, history) {
   const en = lang === 'en';
   const list = (facts || [])
     .map((f) => '- ' + (en ? f.en : f.zh))
@@ -66,6 +82,7 @@ export function buildMessages(facts, query, lang) {
 
   return [
     { role: 'system', content: system },
+    ...sanitizeHistory(history),
     { role: 'user', content: String(query || '').slice(0, 500) },
   ];
 }

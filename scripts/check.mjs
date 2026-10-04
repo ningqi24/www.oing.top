@@ -26,7 +26,7 @@ const fail = (m) => errors.push(m);
 
 const pkg = JSON.parse(read('package.json'));
 const VERSION = pkg.version;
-const HTML_FILES = ['index.html', 'legal.html', '404.html'];
+const HTML_FILES = ['index.html', 'legal.html', '404.html', 'ask.html'];
 
 /* 词条 */
 const sb = { window: {} };
