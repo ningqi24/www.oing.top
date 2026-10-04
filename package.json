@@ -1,6 +1,6 @@
 {
   "name": "www-oing-top",
-  "version": "2.16.0",
+  "version": "2.17.0",
   "private": true,
   "description": "www.oing.top 官网首页 —— 纯静态站点，无构建步骤，直接由 GitHub Pages 托管。",
   "type": "module",
@@ -20,5 +20,5 @@
   "engines": {
     "node": ">=18"
   },
-  "assetHash": "72436f37c105"
+  "assetHash": "aa83c6381293"
 }

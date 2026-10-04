@@ -38,26 +38,42 @@
     return out;
   }
 
-  /** 单条打分：0 ~ 1 */
+  /*
+   * 单条打分：0 ~ 1
+   *
+   * 两种命中方式：
+   *   1. 完整短语被包含（强信号）：0.6 + 0.4 × 关键词长度 / 问题长度
+   *   2. 二元组重合率（容忍换个说法）：逐关键词算，要求 ≥ 50%
+   * 问题短于 6 个字时完全不做模糊匹配 —— 短串上二元组极不可靠。
+   */
   function scoreEntry(qn, entry) {
     var best = 0;
-    var blob = '';
     var keys = entry.keys || [];
+    var bg = bigrams(qn);
+    var useBigrams = bg.length > 0 && qn.length >= 6;
+
     for (var i = 0; i < keys.length; i++) {
       var k = normalize(keys[i]);
       if (!k) continue;
-      blob += k + '|';
+
       if (qn.indexOf(k) >= 0) {
         var s = 0.6 + 0.4 * Math.min(1, k.length / Math.max(2, qn.length));
         if (s > best) best = s;
       }
-    }
-    var bg = bigrams(qn);
-    if (bg.length) {
-      var hit = 0;
-      for (var j = 0; j < bg.length; j++) if (blob.indexOf(bg[j]) >= 0) hit++;
-      var ratio = hit / bg.length;
-      if (ratio > best) best = ratio;
+
+      // 二元组**逐关键词**算，不把所有关键词拼成一个大串。
+      // 拼串会跨边界命中无关片段：实测「x.ai 是什么」命中了 email-domain，
+      // 因为 'whyistheemail' 里的 'ai' 和问题里的 'ai' 撞上了。
+      // 另外要求 ≥ 50% 命中，否则「什么是 Rust」也会被蹭到（0.5 就能过 0.42 阈值）。
+      if (useBigrams) {
+        var kb = bigrams(k);
+        var seen = {};
+        for (var a = 0; a < kb.length; a++) seen[kb[a]] = 1;
+        var hit = 0;
+        for (var b = 0; b < bg.length; b++) if (seen[bg[b]]) hit++;
+        var ratio = hit / bg.length;
+        if (ratio >= 0.5 && ratio > best) best = ratio;
+      }
     }
     return best;
   }

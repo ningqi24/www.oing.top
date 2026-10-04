@@ -14,8 +14,12 @@
 window.OING_QA = [
   {
     id: 'what',
-    keys: ['是什么', '做什么的', '干什么的', '什么东西', '这是啥', '介绍一下', '什么产品', '什么东东',
-           'what is', 'what does', 'about this', 'introduce'],
+    // 绝对不能放裸的「是什么」—— 那样任何「X 是什么」都会被吸到这里，
+    // 实测「x.ai 是什么」曾被答成「Oing 是一个仍在开发中的通用工具」。
+    // 只保留明确指向本产品的说法。
+    keys: ['oing是什么', 'oing是做什么的', '这是什么', '这到底是什么', '什么东西', '这是啥',
+           '介绍一下', '什么产品', '什么东东',
+           'what is oing', 'what is this', 'what does oing', 'about this', 'introduce'],
     zh: 'Oing 是一个仍在开发中的通用工具。本站为其官方页面，目前仅用于说明开发进展；产品本身尚不可用。',
     en: 'Oing is a general-purpose tool that is still in development. This site is its official homepage and currently only describes progress; the product itself is not yet usable.',
   },

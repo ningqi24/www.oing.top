@@ -89,6 +89,11 @@ const CASES = [
   ['asdfghjkl', null],
   ['1 + 1 = ?', null],
   ['你们和 OpenAI 什么关系', null],
+  // 曾经被 what 那条的裸关键词「是什么」吸走，答案是错的
+  ['x.ai 是什么', null],
+  ['量子计算是什么', null],
+  ['X 是什么', null],
+  ['什么是 Rust', null],
   ['怎么复制你们的代码', null],
   ['can I use it now', 'usable'],
 ];
