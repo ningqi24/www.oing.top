@@ -16,6 +16,8 @@ export const FACTS = [
   { id: "who-made-it", zh: "目前暂不介绍团队信息。相关进展将发布在首页「动态」栏。", en: "No team information is available at this stage. Updates will be posted under Updates on the homepage." },
   { id: "is-this-ai", zh: "常见问题由人工撰写的答案按关键词匹配回答；未覆盖的问题会交由语言模型处理。问及本站时，它被限制为只能依据站内已确认的事实作答，不允许推测。", en: "Common questions are answered by hand-written replies matched by keyword. Anything not covered is passed to a language model; on questions about this site it is restricted to the confirmed facts here and is not allowed to speculate." },
   { id: "tech", zh: "前端为纯静态：手写 HTML / CSS / JS，无依赖、无构建步骤，托管于 GitHub Pages，域名解析使用 Cloudflare。问答接口由 Cloudflare Worker 提供，仅在本地答案无法覆盖时调用。页头悬浮导航与首屏流场动画均为自行实现。", en: "The front end is purely static: hand-written HTML / CSS / JS, no dependencies, no build step, hosted on GitHub Pages with DNS on Cloudflare. The question-answering endpoint runs on a Cloudflare Worker and is only called when the local answers do not cover a question. The floating header and the hero flow-field animation are both custom implementations." },
+  { id: "project-minichat", zh: "MiniChat（minichat.astras.cc）是同一维护者做的轻量实时聊天。基于原生 HTML 与 Supabase，无框架依赖；支持实时消息、文件分享与图片压缩，可安装为 PWA 离线使用，开源（MIT）。", en: "MiniChat (minichat.astras.cc) is a lightweight real-time chat by the same maintainer, built on plain HTML and Supabase with no framework. Real-time messages, file sharing and image compression; installable as an offline-capable PWA; open source under MIT." },
+  { id: "project-astras", zh: "Astras.CC（www.astras.cc）是同一维护者做的精选工具导航站。每条工具都人工实测、附点评与实测时间，不做机器采集，每季度复核一次。", en: "Astras.CC (www.astras.cc) is a curated tool directory by the same maintainer. Every entry is tested by hand and carries a short review and a test date; nothing is scraped, and the list is rechecked quarterly." },
   { id: "email-domain", zh: "官方联系邮箱为 official@astras.cc，与本站域名不同，请认准该地址。除此之外没有其它联系方式。", en: "The official contact address is official@astras.cc, on a different domain from this site — please check that it is exactly this one. There is no other contact channel." },
 ];
 
@@ -25,4 +27,4 @@ export const FALLBACK = {
 };
 
 /** 事实库指纹 —— worker 在 /api/health 里报出来，供线上验收比对 */
-export const FACTS_HASH = "73618621";
+export const FACTS_HASH = "d624af12";

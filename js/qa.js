@@ -118,8 +118,28 @@ window.OING_QA = [
     en: 'The front end is purely static: hand-written HTML / CSS / JS, no dependencies, no build step, hosted on GitHub Pages with DNS on Cloudflare. The question-answering endpoint runs on a Cloudflare Worker and is only called when the local answers do not cover a question. The floating header and the hero flow-field animation are both custom implementations.',
   },
   {
+    // 顺序说明：这条必须排在 project-astras 之前。
+    // "minichat.astras.cc 是什么" 会同时命中 'minichat' 与 'astrascc' 且分数相同，
+    // match() 打平时保留先遍历到的，所以顺序就是判据。test-qa 里有用例锁住。
+    id: 'project-minichat',
+    // 'minichatastras' 是为了压过 project-astras：问「minichat.astras.cc 是什么」时，
+    // 两边都会命中，靠更长的 key 拿分（计分是 0.6 + 0.4 × key长/问题长）。
+    keys: ['minichatastras', 'minichat是什么', 'minichat', '实时聊天', '那个聊天', 'the chat project'],
+    zh: 'MiniChat（minichat.astras.cc）是同一维护者做的轻量实时聊天。基于原生 HTML 与 Supabase，无框架依赖；支持实时消息、文件分享与图片压缩，可安装为 PWA 离线使用，开源（MIT）。',
+    en: 'MiniChat (minichat.astras.cc) is a lightweight real-time chat by the same maintainer, built on plain HTML and Supabase with no framework. Real-time messages, file sharing and image compression; installable as an offline-capable PWA; open source under MIT.',
+  },
+  {
+    id: 'project-astras',
+    // 不放裸的 'astrascc' —— 它会把「你们的邮箱为什么是 astras.cc 的」吸过来。
+    // 只保留明确指向"这个站点是什么/那个导航站"的说法。
+    keys: ['astrascc是什么', 'astrascc是', 'astras是什么', '工具导航', '导航站', 'the directory'],
+    zh: 'Astras.CC（www.astras.cc）是同一维护者做的精选工具导航站。每条工具都人工实测、附点评与实测时间，不做机器采集，每季度复核一次。',
+    en: 'Astras.CC (www.astras.cc) is a curated tool directory by the same maintainer. Every entry is tested by hand and carries a short review and a test date; nothing is scraped, and the list is rechecked quarterly.',
+  },
+  {
     id: 'email-domain',
-    keys: ['astras', '为什么邮箱不是', '域名不一样', 'astras.cc是什么',
+    // 不要放裸的 'astras' —— 会把「Astras.CC 是什么」吸过来。必须带邮箱语境。
+    keys: ['为什么邮箱不是', '邮箱域名', '域名不一样', '邮箱为什么是', 'astras是什么邮箱',
            'why is the email', 'different domain'],
     zh: '官方联系邮箱为 official@astras.cc，与本站域名不同，请认准该地址。除此之外没有其它联系方式。',
     en: 'The official contact address is official@astras.cc, on a different domain from this site — please check that it is exactly this one. There is no other contact channel.',

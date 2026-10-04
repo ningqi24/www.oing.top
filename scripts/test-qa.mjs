@@ -65,7 +65,12 @@ const CASES = [
   ['官网用什么做的', 'tech'],
   ['什么技术栈', 'tech'],
   ['为什么邮箱不是 oing.top', 'email-domain'],
-  ['astras.cc 是什么', 'email-domain'],
+  ['你们的邮箱为什么是 astras.cc 的', 'email-domain'],
+  ['Astras.CC 是什么', 'project-astras'],
+  ['那个工具导航站是什么', 'project-astras'],
+  ['MiniChat 是什么', 'project-minichat'],
+  ['minichat.astras.cc 是什么', 'project-minichat'],
+  ['首页推的那个聊天是什么', 'project-minichat'],
   // —— 英文 ——
   ['What is this?', 'what'],
   ['When can I use it?', 'when'],
