@@ -67,7 +67,7 @@
       return;
     }
 
-    // 未命中：先挂上「查询中」，再带着历史问远端
+    // 未命中：先挂上「思考中」，再带着历史问远端
     var pending = turn('bot', t('ask.thinking'));
     pending.li.classList.add('is-pending');
     Ask.remoteAsk(q, history.slice(0, -1)).then(function (out) {
