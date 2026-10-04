@@ -215,6 +215,14 @@ git push
 推送后 Cloudflare 有缓存，通常十几秒到几分钟生效。确认方式：轮询线上做字符串断言，
 而不是刷新自己的浏览器。
 
+**但不要一推送就去请求带 `?v=` 的地址。** GitHub Pages 自己也要几十秒到几分钟才重建完，
+在这段窗口里请求新版本号，Cloudflare 会把**旧文件**缓存到**新版本号**下面
+（js/css 的 `cache-control: max-age=7200`，HTML 是 600），于是访客会拿到旧文件 ——
+而这正是 `?v=` 本来要避免的情况。正确顺序：
+
+1. 先轮询**不带版本号**的地址（或源站 `ningqi24.github.io`），确认内容已更新；
+2. 再去请求带 `?v=` 的地址，此时缓存里不会留下旧副本。
+
 ### GitHub Actions 自检（未启用）
 
 `.github/check-workflow.yml` 已写好但未启用：把它放进 `.github/workflows/` 需要
