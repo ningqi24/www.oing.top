@@ -149,15 +149,6 @@
     });
   }
 
-  var attachBtn = $('#attach-btn');
-  if (attachBtn) attachBtn.addEventListener('click', function () { toast(window.oingT('msg.attached')); });
-
-  $$('.pill-toggle').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      btn.setAttribute('aria-pressed', btn.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
-    });
-  });
-
   /* --------------------------------------------------------------- 滚动动效 */
   var revealEls = $$('.reveal');
   if ('IntersectionObserver' in window && revealEls.length) {

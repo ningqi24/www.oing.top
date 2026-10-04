@@ -107,8 +107,8 @@ window.OING_QA = [
     // （worker 只在接了远端时才存在）。改这里记得跑 npm run build:facts。
     zh: '不是。此处回答由人工预先撰写并按关键词匹配，没有模型参与，因此只会重复已确认的内容。',
     en: 'No. These answers are written in advance and matched by keyword; no model is involved, so they can only repeat what has been confirmed.',
-    remoteZh: '常见问题由人工撰写的答案按关键词匹配回答；未覆盖的问题会交由语言模型处理，该模型被限制为只能依据站内已确认的事实作答，不允许推测。',
-    remoteEn: 'Common questions are answered by hand-written replies matched by keyword. Anything not covered is passed to a language model, which is restricted to the confirmed facts on this site and is not allowed to speculate.',
+    remoteZh: '常见问题由人工撰写的答案按关键词匹配回答；未覆盖的问题会交由语言模型处理。问及本站时，它被限制为只能依据站内已确认的事实作答，不允许推测。',
+    remoteEn: 'Common questions are answered by hand-written replies matched by keyword. Anything not covered is passed to a language model; on questions about this site it is restricted to the confirmed facts here and is not allowed to speculate.',
   },
   {
     id: 'tech',

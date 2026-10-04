@@ -81,8 +81,14 @@ ok(zh.length === 2 && zh[0].role === 'system' && zh[1].role === 'user', '应产�
 ok(zh[1].content === '你们什么时候能用', 'user 内容应是原问题');
 ok(zh[0].content.includes(FALLBACK.zh.slice(0, 6)) || zh[0].content.includes('official@astras.cc'),
   'system prompt 里必须给出兜底联系方式');
-ok(zh[0].content.includes('不要猜测') || zh[0].content.includes('绝对不要猜测'), 'system prompt 必须禁止猜测');
-ok(en[0].content.includes('Never guess'), '英文 prompt 必须禁止猜测');
+ok(/不要推测|不要猜测/.test(zh[0].content), 'system prompt 必须禁止推测');
+ok(/Never speculate|Never guess/.test(en[0].content), '英文 prompt 必须禁止推测');
+// 2026-10 起分两类：关于本站的锁死，一般问题放开。两个方向都要断言，缺一个就失衡。
+ok(/关于 Oing 或本站的问题/.test(zh[0].content), 'system prompt 必须标出「关于本站」这一类');
+ok(/与 Oing 和本站无关的一般问题/.test(zh[0].content), 'system prompt 必须允许回答一般问题');
+ok(/不要把它说成是 Oing 的信息/.test(zh[0].content), '一般问题的回答不能被当成 Oing 的信息');
+ok(/questions about this site/.test(en[0].content), '英文 prompt 必须标出「关于本站」这一类');
+ok(/general question unrelated to Oing/.test(en[0].content), '英文 prompt 必须允许回答一般问题');
 for (const f of FACTS) {
   ok(zh[0].content.includes(f.zh), '中文 prompt 缺少事实：' + f.id);
   ok(en[0].content.includes(f.en), '英文 prompt 缺少事实：' + f.id);

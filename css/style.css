@@ -459,33 +459,6 @@ html[lang="en"] .slogan {
 .answer__foot a { margin-left: 6px; color: var(--brand-ink); font-weight: 500; }
 #answer-src { display: block; margin-bottom: 6px; color: var(--text-placeholder); }
 .answer.is-pending .answer__a { color: var(--text-placeholder); }
-.composer-tools { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
-
-.pill-toggle {
-  display: inline-flex; align-items: center; gap: 4px;
-  height: 34px; padding: 0 12px;
-  border-radius: 18px;
-  font-size: 13px; font-weight: 500;
-  color: var(--text-description);
-  transition: background-color .18s var(--ease), color .18s var(--ease);
-}
-.pill-toggle:hover { background: var(--bg-hover); color: var(--text-primary); }
-.pill-toggle[aria-pressed="true"] {
-  background: rgba(var(--brand-rgb), .12);
-  color: var(--brand-ink);
-}
-.pill-toggle svg { width: 15px; height: 15px; fill: none; stroke: currentColor; flex: none; }
-.pill-toggle svg .fill-part { fill: currentColor; stroke: none; }
-
-.icon-square {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 34px; height: 34px; border-radius: var(--r-input);
-  color: var(--text-description);
-  transition: background-color .18s var(--ease), color .18s var(--ease);
-}
-.icon-square:hover { background: var(--bg-hover); color: var(--text-primary); }
-.icon-square svg { fill: none; stroke: currentColor; }
-
 .send-btn {
   flex: none; margin-left: auto;
   display: inline-flex; align-items: center; justify-content: center;

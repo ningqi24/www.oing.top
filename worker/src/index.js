@@ -1,8 +1,9 @@
 /**
  * oing.top 的问答后端 —— Cloudflare Worker。
  *
- * 职责只有一件事：把「本地事实库没覆盖到」的问题发给 OpenRouter 的免费模型，
- * 并在 system prompt 里把它锁死在已确认事实上（见 src/prompt.js）。
+ * 职责只有一件事：把「本地事实库没覆盖到」的问题发给 OpenRouter 的免费模型。
+ * system prompt 分两类处理：问及 Oing 或本站时只能用已确认事实回答，
+ * 与本站无关的一般问题可以正常回答（见 src/prompt.js）。
  *
  * 为什么需要服务端：静态站放不了 API key。这个 Worker 通过 Route 拦下
  * www.oing.top/api/*，其余请求照常回 GitHub Pages —— 同源、无 CORS、key 不落地。
@@ -30,7 +31,7 @@ const CHAT_URL = 'https://openrouter.ai/api/v1/chat/completions';
 // 限流阈值。免费额度是有限的，而这是个公开接口 —— 没有上限等于把 key 半公开。
 const LIMITS = { perIpPerMinute: 6, globalPerDay: 600 };
 const MAX_INPUT = 500;        // 输入字符上限
-const MAX_TOKENS = 160;       // 输出 token 上限（提示词要求 100 字以内，300 太宽只会拖慢生成）
+const MAX_TOKENS = 220;       // 输出 token 上限（提示词要求 120 字以内；放开一般问题后比原来长）
 const MODELS_TTL = 6 * 3600;  // 模型列表缓存 6 小时
 
 /*

@@ -14,7 +14,7 @@ export const FACTS = [
   { id: "capability", zh: "产品仍在开发中，功能范围尚未确定，因此本站不列出能力清单。有确定内容后会发布在首页「动态」栏。", en: "The product is still in development and its feature set is not fixed, so no capability list is published here. Confirmed details will be posted under Updates on the homepage." },
   { id: "language", zh: "需待产品发布后才能确定。本站本身为中文与英文双语。", en: "That cannot be determined until the product is released. This site itself is bilingual (Chinese and English)." },
   { id: "who-made-it", zh: "目前暂不介绍团队信息。相关进展将发布在首页「动态」栏。", en: "No team information is available at this stage. Updates will be posted under Updates on the homepage." },
-  { id: "is-this-ai", zh: "常见问题由人工撰写的答案按关键词匹配回答；未覆盖的问题会交由语言模型处理，该模型被限制为只能依据站内已确认的事实作答，不允许推测。", en: "Common questions are answered by hand-written replies matched by keyword. Anything not covered is passed to a language model, which is restricted to the confirmed facts on this site and is not allowed to speculate." },
+  { id: "is-this-ai", zh: "常见问题由人工撰写的答案按关键词匹配回答；未覆盖的问题会交由语言模型处理。问及本站时，它被限制为只能依据站内已确认的事实作答，不允许推测。", en: "Common questions are answered by hand-written replies matched by keyword. Anything not covered is passed to a language model; on questions about this site it is restricted to the confirmed facts here and is not allowed to speculate." },
   { id: "tech", zh: "前端为纯静态：手写 HTML / CSS / JS，无依赖、无构建步骤，托管于 GitHub Pages，域名解析使用 Cloudflare。问答接口由 Cloudflare Worker 提供，仅在本地答案无法覆盖时调用。页头悬浮导航与首屏流场动画均为自行实现。", en: "The front end is purely static: hand-written HTML / CSS / JS, no dependencies, no build step, hosted on GitHub Pages with DNS on Cloudflare. The question-answering endpoint runs on a Cloudflare Worker and is only called when the local answers do not cover a question. The floating header and the hero flow-field animation are both custom implementations." },
   { id: "email-domain", zh: "官方联系邮箱为 official@astras.cc，与本站域名不同，请认准该地址。除此之外没有其它联系方式。", en: "The official contact address is official@astras.cc, on a different domain from this site — please check that it is exactly this one. There is no other contact channel." },
 ];
@@ -25,4 +25,4 @@ export const FALLBACK = {
 };
 
 /** 事实库指纹 —— worker 在 /api/health 里报出来，供线上验收比对 */
-export const FACTS_HASH = "04a6cbf5";
+export const FACTS_HASH = "73618621";
